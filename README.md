@@ -39,7 +39,7 @@ but not mandatory,
 to configure `exim4`
 to send email via a third party SMTP service.
 If you don't change the `mail_*` and `exim_*` vars,
-all alerts go to the root account.
+all alerts go to the `mail` account at `/var/mail/mail`.
 
 I like to use per-host Fastmail app passwords.
 Gmail also lets you create app passwords,
@@ -48,7 +48,7 @@ what Google calls 2-step verification,
 and that requires giving Google a phone number,
 which is never going to happen.
 
-The `mail_admin_email` address
+The `admin_email` address
 should not be in the same domain as the hostname
 or alert emails will stay on the host.
 
@@ -69,16 +69,19 @@ the nginx role generates Let's Encrypt certs automatically.
 
 ### Firewall
 
-Hosts are configured
+By default, the SSH port is open to the world,
+but hosts can be configured
 to allow access to the SSH port
-from a single IPv4 address.
+from a single IPv4 address
+or a subnet of IPv4 addresses.
 You should be very careful
-when configuring the `firewall_admin_addr` var,
-and you might want to use the firewall API
+when configuring the `admin_addresses` var,
+and if you do so,
+you might want to use the firewall API
 to implement some sort of port knocking
 so you don't lock yourself out.
 
-There are quite a few services out there
+There are quite a few free services out there
 to check your public IPv4 address.
 
     https://ipecho.net/plain
@@ -108,7 +111,7 @@ in `/etc/ssh/sshd_config`.
 Though Ansible itself
 runs in a Python 3 venv,
 Ansible runs modules
-using the platform interpreter
+using the default interpreter
 unless the `ansible_python_interpreter` is specified.
 Since I like to use Python 3 as much as possible
 and this repo contains custom modules
@@ -142,7 +145,8 @@ Run the following commands to upgrade pip and install Ansible.
 # Deployment
 
 Copy the repo's `stack-vars.yml`
-to `/opt/ansible/`
+to `/opt/ansible/`,
+read the comments,
 and modify it for the host.
 
 Run the following command on the host

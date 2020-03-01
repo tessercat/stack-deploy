@@ -6,13 +6,16 @@ ansible_python_interpreter: "/usr/bin/python3"
 # Note that exim4 mail to root goes to the mail user in /var/mail/mail.
 admin_email: "root@localhost"
 
-# Limit SSH access to an IPv4 address or CIDR subnet. Optional.
-admin_address: ""
-
 # Auth vars for a STARTTLS SMTP service. Optional.
 smtp_server: ""
 smtp_username: ""
 smtp_password: ""
+
+# DNS name with A and AAAA records. Mandatory.
+hostname: ""
+
+# Tzdata database value.
+timezone: "UTC"
 
 # Optional.
 root_password: ""
@@ -20,11 +23,8 @@ root_password: ""
 # Let's Encrypt account email address. Mandatory.
 letsencrypt_email: ""
 
-# DNS name with A and AAAA records. Mandatory.
-hostname: ""
-
 # Space-separated list of other DNS names. Optional.
 other_hostnames: ""
 
-# Tzdata database value.
-timezone: "UTC"
+# Limit SSH access to an IPv4 address or a CIDR subnet. Optional.
+admin_addesses: ""
