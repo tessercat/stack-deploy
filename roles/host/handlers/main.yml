@@ -1,4 +1,11 @@
 ---
+- name: Restart sshd service
+  listen:
+      - notify restart sshd
+  systemd:
+      name: sshd.service
+      state: restarted
+
 - name: Notify admin
   listen:
       - notify reboot

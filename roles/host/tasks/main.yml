@@ -1,4 +1,7 @@
 ---
+
+# Basic stuff.
+
 - name: Hostname
   notify:
       - notify reboot
@@ -10,6 +13,38 @@
       - notify reboot
   timezone:
       name: "{{ timezone }}"
+  when: timezone != ""
+
+- name: Root password
+  user:
+      name: root
+      password: "{{ root_password | password_hash('sha512') }}"
+  when: root_password != ""
+
+
+# SSH port.
+
+- name: Revert SSH port
+  notify:
+      - notify restart sshd
+  lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: "^Port "
+      state: absent
+  when: admin_port == "22"
+
+- name: Change SSH port
+  notify:
+      - notify restart sshd
+  lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: "^Port "
+      line: "Port {{ admin_port }}"
+      insertafter: "^#Port "
+  when: admin_port != "22"
+
+
+# OS update.
 
 - name: Update
   apt:
