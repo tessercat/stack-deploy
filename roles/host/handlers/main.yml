@@ -1,0 +1,11 @@
+---
+- name: Notify admin
+  listen:
+      - notify reboot
+  mail:
+      to: "<{{ admin_email }}>"
+      from: "noreply@{{ hostname }}"
+      subject: "[{{ hostname }}] Reboot required"
+      body: "Host configuration or packages on {{ hostname }} have \
+             been upgraded and a reboot is required."
+      secure: never

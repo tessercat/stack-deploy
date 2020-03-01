@@ -1,0 +1,37 @@
+---
+- name: Hostname
+  notify:
+      - notify reboot
+  hostname:
+      name: "{{ hostname }}"
+
+- name: Timezone
+  notify:
+      - notify reboot
+  timezone:
+      name: "{{ timezone }}"
+
+- name: Update
+  apt:
+      update-cache: true
+
+- name: Upgrade
+  apt:
+      upgrade: full
+
+- name: Stat reboot
+  stat:
+      path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Notify handler
+  notify:
+      - notify reboot
+  command: /bin/true
+  when: reboot_required.stat.exists
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers
