@@ -1,9 +1,9 @@
 ---
-# Run modules using the host's Python 3 interpreter.
-ansible_python_interpreter: "/usr/bin/python3"
+# Stack variables. Edit as required.
 
 # Change this and smtp_* vars to send admin email to an external address.
-# Note that exim4 mail to root goes to the mail user in /var/mail/mail.
+# Email domain must be different from the hostname or mail stays on the host.
+# Mail to root goes to the mail user in /var/mail/mail.
 admin_email: "root@localhost"
 
 # Auth vars for a STARTTLS SMTP service. Optional.
@@ -11,20 +11,24 @@ smtp_server: ""
 smtp_username: ""
 smtp_password: ""
 
-# DNS name with A and AAAA records. Mandatory.
+# The host's DNS name. Required.
 hostname: ""
 
-# Tzdata database value.
+# Space-separated list of other DNS names for the host. Optional.
+other_hostnames: ""
+
+# The host's tzdata database time zone.
 timezone: "UTC"
 
 # Optional.
 root_password: ""
 
-# Let's Encrypt account email address. Mandatory.
-letsencrypt_email: ""
+# SSH port.
+admin_port: "2222"
 
-# Space-separated list of other DNS names. Optional.
-other_hostnames: ""
+# Let's Encrypt account email address. Required.
+letsencrypt_admin_email: ""
 
-# Limit SSH access to an IPv4 address or a CIDR subnet. Optional.
+# Limit SSH access to an IPv4 address or CIDR subnet. Optional.
+# Don't change this unless you know what you're doing.
 admin_addesses: ""

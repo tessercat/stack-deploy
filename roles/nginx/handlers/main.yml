@@ -1,0 +1,83 @@
+---
+
+# Configure nginx for certbot.
+
+- name: Archive conf.d
+  listen:
+      - run certbot
+  archive:
+      path: /etc/nginx/conf.d
+      remove: true
+
+- name: Create conf.d
+  listen:
+      - run certbot
+  file:
+      path: /etc/nginx/conf.d
+      state: directory
+
+- name: Certbot HTTP server
+  listen:
+      - run certbot
+  copy:
+      src: certbot-http.conf
+      dest: /etc/nginx/conf.d/default-http.conf
+
+- name: Restart nginx service
+  listen:
+      - run certbot
+  systemd:
+      name: nginx.service
+      state: restarted
+
+
+# Run certbot.
+
+- name: Run certbot
+  listen:
+      - run certbot
+  certbot:
+      acme_dir: /var/opt/acme-dir
+      admin_email: "{{ letsencrypt_admin_email }}"
+      hostname: "{{ hostname }}"
+      other_hostnames: "{{ other_hostnames }}"
+
+
+# Restore nginx config.
+
+- name: Delete conf.d
+  listen:
+      - run certbot
+  file:
+      path: /etc/nginx/conf.d
+      state: absent
+
+- name: Restore conf.d
+  listen:
+      - run certbot
+  unarchive:
+      src: /etc/nginx/conf.d.tgz
+      dest: /etc/nginx
+      creates: /etc/nginx/conf.d
+
+
+# Cert renewal script on certbot run.
+
+- name: Cert renewal script
+  listen:
+      - run certbot
+  template:
+      src: certbot-post-hook
+      dest: /etc/letsencrypt/renewal-hooks/post/nginx
+      mode: 0755
+
+
+# Final restart.
+
+- name: Restart nginx service
+  listen:
+      - restart nginx service
+      - run certbot
+  systemd:
+      name: nginx.service
+      state: restarted

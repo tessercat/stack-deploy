@@ -4,13 +4,18 @@
   become: false
   gather_facts: false
   vars:
+
+      # Run modules using the host's Python 3 interpreter.
+      ansible_python_interpreter: "/usr/bin/python3"
+
       firewall_api_repo: https://github.com/puptel/firewall-api.git
       firewall_api_version: master
       firewall_api_port: 8100
+
   roles:
       - {role: exim, tags: [exim]}
       - {role: host, tags: [host]}
-        # - {role: nginx/deploy, tags: [nginx]}
+      - {role: nginx/deploy, tags: [nginx]}
         # - {role: ipsets, tags: [ipsets, firewall]}
         # - {role: iptables, tags: [iptables, firewall]}
         # - {role: firewall, tags: [firewall]}

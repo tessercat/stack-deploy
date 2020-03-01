@@ -1,0 +1,72 @@
+---
+
+# OS.
+
+- name: Packages
+  apt:
+      pkg:
+          - certbot
+          - nginx
+
+
+# Nginx defaults.
+
+- name: Default site
+  notify:
+      - restart nginx service
+  file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
+- name: Default HTTP server
+  notify:
+      - restart nginx service
+  template:
+      src: http.conf
+      dest: /etc/nginx/conf.d/default-http.conf
+
+- name: Default HTTPS server
+  notify:
+      - restart nginx service
+  template:
+      src: https.conf
+      dest: /etc/nginx/conf.d/default-https.conf
+
+
+# Certbot.
+
+- name: Webroot
+  file:
+      path: /var/opt/acme-dir
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: 0755
+
+- name: Stat
+  stat:
+      path: "/etc/letsencrypt/live/{{ hostname }}"
+  register: remote_cert_dir
+  # Hook
+  # Notify
+
+# Configure the renewal script when cert exists.
+- name: Hook
+  template:
+      src: certbot-post-hook
+      dest: /etc/letsencrypt/renewal-hooks/post/nginx
+      mode: 0755
+  when: remote_cert_dir.stat.exists
+
+# Run certbot when cert doesn't exist.
+- name: Notify
+  notify:
+      - run certbot
+  command: /bin/true
+  when: not remote_cert_dir.stat.exists
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers
