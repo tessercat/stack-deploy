@@ -7,5 +7,5 @@
       from: "noreply@{{ hostname }}"
       subject: "[{{ hostname }}] Reboot required"
       body: "Host configuration or packages on {{ hostname }} have \
-             been upgraded and a reboot is required."
+             changed and a reboot is required."
       secure: never
