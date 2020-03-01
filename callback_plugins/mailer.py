@@ -17,6 +17,7 @@ class CallbackModule(CallbackBase):
     CALLBACK_NEEDS_WHITELIST = False
 
     _play = None
+    _tasks = {}
 
     def _email_admin(self, subject, body):
         """ Email host admin. """
@@ -28,6 +29,12 @@ class CallbackModule(CallbackBase):
         msg['To'] = '<%s>' % play_vars['admin_email']
         with smtplib.SMTP('localhost') as server:
             server.send_message(msg)
+
+    def _update_tasks(self, task):
+        """ Update the host-to-last-task dict. """
+        hostvars = task.get_variable_manager().get_vars()['hostvars']
+        for host, _ in hostvars.items():
+            self._tasks[host] = task
 
     # Callback overrides.
 
@@ -43,8 +50,19 @@ class CallbackModule(CallbackBase):
 
     def runner_on_failed(self, host, res, ignore_errors=False):
         """ Process failed task result. """
-        self._email_admin('Task failed', res['msg'])
+        self._email_admin(
+            'Task failed',
+            '%s\n\n%s' % (self._tasks.get(host), res['msg']),
+        )
 
     def v2_playbook_on_play_start(self, play):
         """ Process playbook start events. """
         self._play = play
+
+    def v2_playbook_on_handler_task_start(self, task):
+        """ Process handler start events. """
+        self._update_tasks(task)
+
+    def v2_playbook_on_task_start(self, task, is_conditional):
+        """ Process task start events. """
+        self._update_tasks(task)

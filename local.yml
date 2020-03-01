@@ -15,7 +15,7 @@
   roles:
       - {role: exim, tags: [exim]}
       - {role: host, tags: [host]}
-      - {role: nginx/deploy, tags: [nginx]}
+      - {role: nginx, tags: [nginx]}
         # - {role: ipsets, tags: [ipsets, firewall]}
         # - {role: iptables, tags: [iptables, firewall]}
         # - {role: firewall, tags: [firewall]}
