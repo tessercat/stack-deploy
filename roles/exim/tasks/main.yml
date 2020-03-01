@@ -1,0 +1,61 @@
+---
+- name: Packages
+  apt:
+      pkg:
+          - exim4
+
+- name: Configtype
+  notify:
+      - restart exim service
+  lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_eximconfig_configtype="
+      line: "dc_eximconfig_configtype='smarthost'"
+  register: exim_configtype
+  when: admin_email != "root@localhost"
+  # Update
+
+- name: Smarthost
+  notify:
+      - restart exim service
+  lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_smarthost="
+      line: "dc_smarthost='{{ smtp_server }}::587'"
+  when: smtp_server|bool
+  register: exim_smarthost
+  # Update
+
+- name: Credentials
+  notify:
+      - restart exim service
+  copy:
+      dest: /etc/exim4/passwd.client
+      content: "{{ smtp_server }}:{{ smtp_username }}:\
+                {{ smtp_password }}"
+      group: Debian-exim
+      mode: 0640
+  when: smtp_server|bool and smtp_username|bool and smtp_password|bool
+  register: exim_credentials
+  # Update
+
+- name: Mailname
+  notify:
+      - restart exim service
+  copy:
+      content: "{{ hostname }}"
+      dest: /etc/mailname
+  when: admin_email != "root@localhost"
+
+- name: Update
+  command: update-exim4.conf
+  when:
+      exim_configtype is changed
+      or exim_smarthost is changed
+      or exim_credentials is changed
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers
