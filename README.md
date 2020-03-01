@@ -10,8 +10,8 @@ that includes:
 - Mailer config.
 - Let's Encrypt certificates.
 - Opinionated `iptables` and `ipset` configuration.
-- A custom firewall API.
-  that attempts to bridge the gap
+- A custom firewall API
+  that bridges the gap
   between IPv4 and IPv6 network stacks.
 
 
@@ -32,6 +32,11 @@ recommended by the FreeSWITCH project.
 The stack may or may not
 work just as well on Ubuntu.
 
+### Dual IPv4/IPv6 network stack
+
+The playbook assumes that the host is configured with
+at least one IPv4 address and one IPv6 address.
+
 ### Email
 
 The stack makes it simple,
@@ -39,7 +44,7 @@ but not mandatory,
 to configure `exim4`
 to send email via a third party SMTP service.
 If you don't change the `mail_*` and `exim_*` vars,
-all alerts go to the `mail` account at `/var/mail/mail`.
+all admin email goes to the `mail` account at `/var/mail/mail`.
 
 I like to use per-host Fastmail app passwords.
 Gmail also lets you create app passwords,
@@ -56,30 +61,26 @@ or alert emails will stay on the host.
 
 You must control a DNS domain
 to deploy this stack,
-and the host must be configured with
-at least one public IPv4 address
-and one public IPv6 address.
-A and AAAA records must be configured
-for the first of each type of address
-found in the output of `hostname --all-ip-addresses`.
-
-When A and AAAA records
-are configured correctly for the host,
+so configure A and AAAA records for the host.
+When records are configured correctly,
 the nginx role generates Let's Encrypt certs automatically.
 
 ### Firewall
 
 By default, the SSH port is open to the world,
 but hosts can be configured
-to allow access to the SSH port
+to allow unrestricted access to the SSH port
 from a single IPv4 address
-or a subnet of IPv4 addresses.
+or from a subnet of IPv4 addresses.
 You should be very careful
 when configuring the `admin_addresses` var,
 and if you do so,
-you might want to use the firewall API
-to implement some sort of port knocking
-so you don't lock yourself out.
+you might want to set a root password
+on the host
+so you can access the host from a console
+if you lock yourself out,
+or use the firewall API
+to implement some sort of port knocking.
 
 There are quite a few free services out there
 to check your public IPv4 address.
@@ -89,7 +90,22 @@ to check your public IPv4 address.
     https://ifconfig.co/
     https://ifconfig.me/
 
-### SSH
+### Python 3
+
+Though Ansible itself
+runs in a Python 3 venv,
+Ansible runs modules
+using the default interpreter
+unless the `ansible_python_interpreter` is specified.
+Since I like to use Python 3 where possible
+but Debian 10's default interpreter is still at Python 2.7,
+and since according to the
+[Ansible documentation](https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html),
+core modules should work fine in Python 3,
+a playbook var points the interpreter var
+at Debians' Python 3 interpreter.
+
+### SSH daemon
 
 The stack has no opinion
 on how to configure the SSH daemon,
@@ -105,22 +121,6 @@ in `/etc/ssh/sshd_config`.
     ChallengeResponseAuthentication no
     UsePAM yes
     PasswordAuthentication no
-
-### Python 3
-
-Though Ansible itself
-runs in a Python 3 venv,
-Ansible runs modules
-using the default interpreter
-unless the `ansible_python_interpreter` is specified.
-Since I like to use Python 3 as much as possible
-and this repo contains custom modules
-that use Python 3 features,
-and since according to the
-[Ansible documentation](https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html),
-core modules should work fine in Python 3,
-variables should point the interpreter var
-at the platform's Python 3 interpreter.
 
 
 # Setup
