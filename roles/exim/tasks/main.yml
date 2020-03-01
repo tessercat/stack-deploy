@@ -22,7 +22,7 @@
       dest: /etc/exim4/update-exim4.conf.conf
       regexp: "^dc_smarthost="
       line: "dc_smarthost='{{ smtp_server }}::587'"
-  when: smtp_server|bool
+  when: smtp_server != ""
   register: exim_smarthost
   # Update
 
@@ -35,7 +35,10 @@
                 {{ smtp_password }}"
       group: Debian-exim
       mode: 0640
-  when: smtp_server|bool and smtp_username|bool and smtp_password|bool
+  when:
+      smtp_server != ""
+      and smtp_username != ""
+      and smtp_password != ""
   register: exim_credentials
   # Update
 

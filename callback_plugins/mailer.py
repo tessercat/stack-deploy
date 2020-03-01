@@ -43,7 +43,7 @@ class CallbackModule(CallbackBase):
 
     def runner_on_failed(self, host, res, ignore_errors=False):
         """ Process failed task result. """
-        self._email_admin('Task failed', pformat(res))
+        self._email_admin('Task failed', res['msg'])
 
     def v2_playbook_on_play_start(self, play):
         """ Process playbook start events. """

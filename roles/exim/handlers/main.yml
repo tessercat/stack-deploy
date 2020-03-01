@@ -1,7 +1,7 @@
 ---
 - name: Restart service
   listen:
-      - restart exim servince
+      - restart exim service
   service:
       name: exim4
       state: restarted
