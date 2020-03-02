@@ -50,9 +50,15 @@ class CallbackModule(CallbackBase):
 
     def runner_on_failed(self, host, res, ignore_errors=False):
         """ Process failed task result. """
+        if res.get('msg'):
+            message = res['msg']
+        elif res.get('failure'):
+            message = res['failure']
+        else:
+            message = 'Unknown task failure reason.'
         self._email_admin(
             'Task failed',
-            '%s\n\n%s' % (self._tasks.get(host), res['msg']),
+            '%s\n\n%s' % (self._tasks.get(host), message),
         )
 
     def v2_playbook_on_play_start(self, play):
