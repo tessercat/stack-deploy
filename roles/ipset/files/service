@@ -1,5 +1,5 @@
 [Unit]
-Description=ipset restore service
+Description=ipset load service
 After=network.target
 
 # Run before iptables loads.
@@ -10,9 +10,9 @@ Before=netfilter-persistent.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/opt/ipsets/ipset-restore
-ExecReload=/opt/ipsets/ipset-restore
-SyslogIdentifier=ipset-restore
+ExecStart=/bin/bash /opt/ipset/load.bash
+ExecReload=/bin/bash /opt/ipset/load.bash
+SyslogIdentifier=ipset-load
 
 [Install]
 WantedBy=multi-user.target

@@ -31,6 +31,5 @@ admin_port: "22"
 # Let's Encrypt account email address. Required.
 letsencrypt_admin_email: ""
 
-# Limit SSH access to an IPv4 address or CIDR subnet. Optional.
-# Don't set this unless you know what you're doing.
-admin_addresses: ""
+# Limit SSH access to whitelisted addresses. Be careful.
+admin_whitelist: false

@@ -69,26 +69,38 @@ the nginx role generates Let's Encrypt certs automatically.
 
 By default, the SSH port is open to the world,
 but hosts can be configured
-to disallow access to the (configurable) SSH port
-from all but a single IPv4 address
-or subnet of IPv4 addresses.
-You should be very careful
-when configuring the `admin_addresses` var,
-and if you do so,
-you might want to set a root password
-on the host
-so you can access the host from a console
-if you lock yourself out,
+to disallow access to the (stack-vars-configurable) SSH port
+from all but whitelisted IP address.
+If you enable the `admin_whitelist` stack var,
+you must add whitelisted IP addresses
+(or CIDR subnets)
+to the host at
+`/opt/ipset/lists/whitelist4`
+or `/opt/ipset/lists/whitelist6`
+(one address/subnet per line)
 or use the firewall API
-to implement some sort of port knocking.
+to implement some kind of port knocking
+or you *will* lock yourself out
+when the ipset service runs.
 
 There are quite a few free services out there
-to check your public IPv4 address.
+to check your public IP address.
 
     https://ipecho.net/plain
     https://icanhazip.com/
     https://ifconfig.co/
     https://ifconfig.me/
+
+The firewall also lets you blacklist addresses
+by placing addresses in files at
+`/opt/ipset/lists/blacklist4`
+and `/opt/ipset/lists/blacklist6`.
+
+If you change the lists,
+reload ipset and firewall services.
+
+    systemctl reload ipset.service
+    systemctl reload firewall.service
 
 ### Python 3
 

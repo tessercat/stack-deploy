@@ -10,67 +10,46 @@
 
 # Sets.
 
-- name: Sets directory
+- name: Directory
   file:
-      path: /opt/ipsets/sets
+      path: /opt/ipset
       state: directory
       mode: 0700
 
-- name: IPv4 empty admin set
+- name: Subdirectories
+  file:
+      path: item
+      state: directory
+  with_items:
+      - /opt/ipset/sets
+      - /opt/ipset/lists
+
+- name: Sets
   notify:
-      - reload ipset-restore service
+      - reload ipset service
   copy:
-      src: admin4.ipset
-      dest: /opt/ipsets/sets/admin4
-  when: admin_addresses == ""
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+  loop:
+      - {src: "blacklist4", dest: "/opt/ipset/sets/blacklist4"}
+      - {src: "blacklist6", dest: "/opt/ipset/sets/blacklist6"}
+      - {src: "whitelist4", dest: "/opt/ipset/sets/whitelist4"}
+      - {src: "whitelist6", dest: "/opt/ipset/sets/whitelist6"}
 
-- name: IPv4 admin set
-  notify:
-      - reload ipset-restore service
-  template:
-      src: admin4.ipset
-      dest: /opt/ipsets/sets/admin4
-  when: admin_addresses != ""
-
-- name: IPv6 admin set
-  notify:
-      - reload ipset-restore service
+- name: Script
   copy:
-      src: admin6.ipset
-      dest: /opt/ipsets/sets/admin6
+      src: script.bash
+      dest: /opt/ipset/load.bash
 
-- name: IPv4 blacklist set
-  notify:
-      - reload ipset-restore service
+- name: Service
   copy:
-      src: blacklist4.ipset
-      dest: /opt/ipsets/sets/blacklist4
-
-- name: IPv6 blacklist set
-  notify:
-      - reload ipset-restore service
-  copy:
-      src: blacklist6.ipset
-      dest: /opt/ipsets/sets/blacklist6
-
-
-# Systemd ipset-restore.
-
-- name: Restore script
-  copy:
-      src: ipset-restore
-      dest: /opt/ipsets/ipset-restore
-      mode: 0700
-
-- name: Restore service file
-  copy:
-      src: ipset-restore.service
-      dest: /etc/systemd/system/ipset-restore.service
+      src: service
+      dest: /etc/systemd/system/ipset.service
       mode: 0644
 
-- name: Restore service status
+- name: Service status
   systemd:
-      name: ipset-restore.service
+      name: ipset.service
       enabled: true
       daemon-reload: true
 

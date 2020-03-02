@@ -20,21 +20,29 @@
 
 # Rules.
 
+- name: IPv4 whitelist rules
+  notify:
+      - restart iptables service
+  template:
+      src: rules-whitelist.v4
+      dest: /etc/iptables/rules.v4
+  when: admin_whitelist
+
 - name: IPv4 rules
   notify:
       - restart iptables service
   template:
       src: rules.v4
       dest: /etc/iptables/rules.v4
-  when: admin_addresses == ""
+  when: not admin_whitelist
 
-- name: IPv4 admin rules
+- name: IPv6 whitelist rules
   notify:
       - restart iptables service
   template:
-      src: rules.v4
-      dest: /etc/iptables/rules-admin.v4
-  when: admin_addresses != ""
+      src: rules-whitelist.v6
+      dest: /etc/iptables/rules.v6
+  when: admin_whitelist
 
 - name: IPv6 rules
   notify:
@@ -42,15 +50,7 @@
   template:
       src: rules.v6
       dest: /etc/iptables/rules.v6
-  when: admin_addresses == ""
-
-- name: IPv6 admin rules
-  notify:
-      - restart iptables service
-  template:
-      src: rules.v6
-      dest: /etc/iptables/admin-rules.v6
-  when: admin_addresses != ""
+  when: not admin_whitelist
 
 - name: Flush commands
   copy:
