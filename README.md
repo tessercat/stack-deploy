@@ -62,16 +62,16 @@ or alert emails will stay on the host.
 You must control a DNS domain
 to deploy this stack,
 so configure A and AAAA records for the host.
-When records are configured correctly,
+When DNS records are configured correctly,
 the nginx role generates Let's Encrypt certs automatically.
 
 ### Firewall
 
 By default, the SSH port is open to the world,
 but hosts can be configured
-to allow unrestricted access to the SSH port
-from a single IPv4 address
-or from a subnet of IPv4 addresses.
+to disallow access to the (configurable) SSH port
+from all but a single IPv4 address
+or subnet of IPv4 addresses.
 You should be very careful
 when configuring the `admin_addresses` var,
 and if you do so,
@@ -103,7 +103,7 @@ and since according to the
 [Ansible documentation](https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html),
 core modules should work fine in Python 3,
 a playbook var points the interpreter var
-at Debians' Python 3 interpreter.
+at Debian's Python 3 interpreter.
 
 ### SSH daemon
 
@@ -125,7 +125,7 @@ in `/etc/ssh/sshd_config`.
 
 # Setup
 
-Run the following commands on the host as root
+Run the following commands on the Debian 10 host as root
 to install Ansible on the host in a Python 3 venv.
 
     mkdir -p /opt/ansible
@@ -149,6 +149,8 @@ to `/opt/ansible/`,
 read the comments,
 and modify it for the host.
 
+    wget https://raw.githubusercontent.com/tessercat/stack-deploy/master/stack-vars.yml
+
 Run the following command on the host
 to have Ansible pull the repo
 and run `local.yml` to deploy the stack.
@@ -168,8 +170,3 @@ to keep the venv up to date.
 Run the `ansible-pull` command regularly,
 possibly in a systemd timer,
 to keep the stack up to date.
-
-
-# Development
-
-
