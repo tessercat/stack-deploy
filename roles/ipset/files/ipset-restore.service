@@ -1,0 +1,18 @@
+[Unit]
+Description=ipset restore service
+After=network.target
+
+# Run before iptables loads.
+# Iptables rules that reference missing ipsets
+# makes all rules fail to load.
+Before=netfilter-persistent.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/ipsets/ipset-restore
+ExecReload=/opt/ipsets/ipset-restore
+SyslogIdentifier=ipset-restore
+
+[Install]
+WantedBy=multi-user.target

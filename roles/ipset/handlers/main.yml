@@ -1,0 +1,7 @@
+---
+- name: Reload ipset-restore service
+  listen:
+      - reload ipset-restore service
+  systemd:
+      name: ipset-restore.service
+      state: reloaded

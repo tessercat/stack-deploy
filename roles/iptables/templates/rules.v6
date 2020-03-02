@@ -1,0 +1,31 @@
+# Chains.
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# Implement a default deny policy.
+-P INPUT DROP
+-P FORWARD DROP
+
+# Accept loopback traffic.
+-A INPUT -i lo -j ACCEPT
+
+# Accept all ICMP traffic.
+-A INPUT -p ipv6-icmp -j ACCEPT
+
+# Drop backlisted traffic before becoming stateful.
+-A INPUT -m set --match-set blacklist6 src -j ACCEPT
+
+# Be stateful.
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Accept SSH traffic.
+-A INPUT -p tcp -m tcp --dport {{ admin_port }} -j ACCEPT
+
+# Accept web traffic. Port 80 is for Let's Encrypt.
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+
+# And finally.
+COMMIT

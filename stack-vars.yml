@@ -33,4 +33,4 @@ letsencrypt_admin_email: ""
 
 # Limit SSH access to an IPv4 address or CIDR subnet. Optional.
 # Don't set this unless you know what you're doing.
-admin_addesses: ""
+admin_addresses: ""

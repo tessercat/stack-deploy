@@ -1,0 +1,81 @@
+---
+
+# OS.
+
+- name: Packages
+  apt:
+      pkg:
+          - ipset
+
+
+# Sets.
+
+- name: Sets directory
+  file:
+      path: /opt/ipsets/sets
+      state: directory
+      mode: 0700
+
+- name: IPv4 empty admin set
+  notify:
+      - reload ipset-restore service
+  copy:
+      src: admin4.ipset
+      dest: /opt/ipsets/sets/admin4
+  when: admin_addresses == ""
+
+- name: IPv4 admin set
+  notify:
+      - reload ipset-restore service
+  template:
+      src: admin4.ipset
+      dest: /opt/ipsets/sets/admin4
+  when: admin_addresses != ""
+
+- name: IPv6 admin set
+  notify:
+      - reload ipset-restore service
+  copy:
+      src: admin6.ipset
+      dest: /opt/ipsets/sets/admin6
+
+- name: IPv4 blacklist set
+  notify:
+      - reload ipset-restore service
+  copy:
+      src: blacklist4.ipset
+      dest: /opt/ipsets/sets/blacklist4
+
+- name: IPv6 blacklist set
+  notify:
+      - reload ipset-restore service
+  copy:
+      src: blacklist6.ipset
+      dest: /opt/ipsets/sets/blacklist6
+
+
+# Systemd ipset-restore.
+
+- name: Restore script
+  copy:
+      src: ipset-restore
+      dest: /opt/ipsets/ipset-restore
+      mode: 0700
+
+- name: Restore service file
+  copy:
+      src: ipset-restore.service
+      dest: /etc/systemd/system/ipset-restore.service
+      mode: 0644
+
+- name: Restore service status
+  systemd:
+      name: ipset-restore.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers

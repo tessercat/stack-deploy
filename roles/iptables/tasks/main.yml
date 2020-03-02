@@ -1,0 +1,64 @@
+---
+
+# OS.
+
+- name: DebConf
+  debconf:
+      name: iptables-persistent
+      question: "{{ item }}"
+      value: "false"
+      vtype: boolean
+  with_items:
+      - iptables-persistent/autosave_v4
+      - iptables-persistent/autosave_v6
+
+- name: Packages
+  apt:
+      pkg:
+          - iptables-persistent
+
+
+# Rules.
+
+- name: IPv4 rules
+  notify:
+      - restart iptables service
+  template:
+      src: rules.v4
+      dest: /etc/iptables/rules.v4
+  when: admin_addresses == ""
+
+- name: IPv4 admin rules
+  notify:
+      - restart iptables service
+  template:
+      src: rules.v4
+      dest: /etc/iptables/rules-admin.v4
+  when: admin_addresses != ""
+
+- name: IPv6 rules
+  notify:
+      - restart iptables service
+  template:
+      src: rules.v6
+      dest: /etc/iptables/rules.v6
+  when: admin_addresses == ""
+
+- name: IPv6 admin rules
+  notify:
+      - restart iptables service
+  template:
+      src: rules.v6
+      dest: /etc/iptables/admin-rules.v6
+  when: admin_addresses != ""
+
+- name: Flush commands
+  copy:
+      src: flush
+      dest: /etc/iptables/flush
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers

@@ -1,0 +1,2 @@
+create admin4 hash:ip family inet hashsize 1024 maxelem 65536
+add admin4 {{ admin_addr }}
