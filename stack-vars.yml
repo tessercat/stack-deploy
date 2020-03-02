@@ -6,29 +6,31 @@
 # Mail to root goes to the mail user in /var/mail/mail.
 admin_email: "root@localhost"
 
-# Auth vars for a STARTTLS SMTP service. Optional.
+# Auth vars for a STARTTLS SMTP service. Optional, change only if present.
 smtp_server: ""
 smtp_username: ""
 smtp_password: ""
 
 # The host's DNS name. Required.
+# Remove /etc/letsencrypt directory to change hostname/other_hostnames.
+# Beware Let's Encrypt rate limits.
 hostname: ""
 
 # Space-separated list of other DNS names for the host. Optional.
 other_hostnames: ""
 
-# The host's tzdata database time zone.
-timezone: "UTC"
+# The host's tzdata database time zone. Optional, change only if present.
+timezone: ""
 
-# Optional.
+# Optional, change only if present.
 root_password: ""
 
-# SSH port.
-admin_port: "2222"
+# SSH port. Required.
+admin_port: "22"
 
 # Let's Encrypt account email address. Required.
 letsencrypt_admin_email: ""
 
 # Limit SSH access to an IPv4 address or CIDR subnet. Optional.
-# Don't change this unless you know what you're doing.
+# Don't set this unless you know what you're doing.
 admin_addesses: ""
