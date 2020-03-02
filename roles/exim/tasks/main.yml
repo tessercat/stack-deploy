@@ -4,15 +4,26 @@
       pkg:
           - exim4
 
-- name: Configtype
+- name: Configtype smarthost
   notify:
       - restart exim service
   lineinfile:
       dest: /etc/exim4/update-exim4.conf.conf
       regexp: "^dc_eximconfig_configtype="
       line: "dc_eximconfig_configtype='smarthost'"
-  register: exim_configtype
-  when: admin_email != "root@localhost"
+  register: exim_configtype_smarthost
+  when: "'localhost' not in admin_email"
+  # Update
+
+- name: Configtype local
+  notify:
+      - restart exim service
+  lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_eximconfig_configtype="
+      line: "dc_eximconfig_configtype='local'"
+  register: exim_configtype_local
+  when: "'localhost' in admin_email"
   # Update
 
 - name: Smarthost
@@ -53,7 +64,8 @@
 - name: Update
   command: update-exim4.conf
   when:
-      exim_configtype is changed
+      exim_configtype_local is changed
+      or exim_configtype_smarthost is changed
       or exim_smarthost is changed
       or exim_credentials is changed
 
