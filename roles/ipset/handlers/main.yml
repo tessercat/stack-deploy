@@ -1,7 +1,7 @@
 ---
-- name: Reload service
+- name: Run service
   listen:
-      - reload ipset service
+      - run ipset service
   systemd:
       name: ipset.service
-      state: reloaded
+      state: started

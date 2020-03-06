@@ -5,6 +5,7 @@
 - name: Packages
   apt:
       pkg:
+          - git
           - ipset
 
 
@@ -16,30 +17,19 @@
       state: directory
       mode: 0700
 
-- name: Subdirectories
-  file:
-      path: item
-      state: directory
-  with_items:
-      - /opt/ipset/sets
-      - /opt/ipset/lists
+- name: Repo
+  git:
+      repo: "{{ ipset_repo }}"
+      dest: /opt/ipset
+      version: "{{ ipset_version }}"
+      force: true
+  register: ipset_repo
 
-- name: Sets
+- name: Notify
   notify:
-      - reload ipset service
-  copy:
-      src: "{{ item.src }}"
-      dest: "{{ item.dest }}"
-  loop:
-      - {src: "blacklist4", dest: "/opt/ipset/sets/blacklist4"}
-      - {src: "blacklist6", dest: "/opt/ipset/sets/blacklist6"}
-      - {src: "whitelist4", dest: "/opt/ipset/sets/whitelist4"}
-      - {src: "whitelist6", dest: "/opt/ipset/sets/whitelist6"}
-
-- name: Script
-  copy:
-      src: script.bash
-      dest: /opt/ipset/load.bash
+      - run ipset service
+  command: /bin/true
+  when: ipset_repo.before == None
 
 - name: Service
   copy:

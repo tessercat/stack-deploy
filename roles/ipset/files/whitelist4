@@ -1,1 +1,0 @@
-create whitelist4 hash:ip family inet hashsize 1024 maxelem 65536

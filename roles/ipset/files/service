@@ -1,5 +1,5 @@
 [Unit]
-Description=ipset load service
+Description=ipset service
 After=network.target
 
 # Run before iptables loads.
@@ -10,9 +10,9 @@ Before=netfilter-persistent.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/bash /opt/ipset/load.bash
-ExecReload=/bin/bash /opt/ipset/load.bash
-SyslogIdentifier=ipset-load
+ExecStart=/bin/bash /opt/ipset/commands.bash
+ExecReload=/bin/bash /opt/ipset/commands.bash
+SyslogIdentifier=ipset
 
 [Install]
 WantedBy=multi-user.target
