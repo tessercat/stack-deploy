@@ -5,9 +5,6 @@
   gather_facts: false
   vars:
 
-      # Run modules using the host's Python 3 interpreter.
-      ansible_python_interpreter: "/usr/bin/python3"
-
       ipset_repo: https://github.com/tessercat/firewall-ipset.git
       ipset_version: master
 
