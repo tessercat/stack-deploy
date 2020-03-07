@@ -41,12 +41,15 @@ class CallbackModule(CallbackBase):
     def playbook_on_stats(self, stats):
         """ Process playbook stats event for each host. """
         data = {}
+        status = 'complete'
         for host in stats.processed.keys():
             data[host] = stats.summarize(host)
-            status = 'complete'
             if data[host]['failures'] or data[host]['unreachable']:
                 status = 'failed'
-        self._email_admin('%s %s' % (self._play.name, status), pformat(data))
+        self._email_admin(
+            '%s %s' % (self._play.name, status),
+            pformat(data)
+        )
 
     def runner_on_failed(self, host, res, ignore_errors=False):
         """ Process failed task result. """
