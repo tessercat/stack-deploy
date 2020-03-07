@@ -1,0 +1,176 @@
+---
+
+# OS.
+
+- name: Packages
+  apt:
+      pkg:
+          - git
+          - memcached
+          - python3-venv
+
+
+# Django project.
+
+- name: Directory
+  file:
+      path: /opt/firewall,
+      state: directory
+      mode: 0755
+
+- name: Repo directory
+  file:
+      path: /opt/firewall/api
+      state: directory
+      mode: 0700
+
+- name: Repo
+  notify:
+      - restart firewall service
+      - restart queue service
+  git:
+      repo: "{{ firewall_repo }}"
+      dest: /opt/firewall/api
+      version: "{{ firewall_version }}"
+      force: true
+  register: firewall_git
+  # Clean
+  # Upgrade
+  # Requirements
+  # Migrate
+
+- name: Clean static
+  file:
+      path: /opt/firewall/static
+      state: absent
+  when: firewall_git is changed
+
+- name: Stat static
+  stat:
+      path: /opt/firewall/static
+  register: firewall_static
+
+- name: Static
+  copy:
+      src: /opt/firewall/api/static
+      dest: /opt/firewall
+      remote_src: true
+      owner: www-data
+      group: www-data
+      mode: 0700
+  when: not firewall_static.stat.exists
+
+- name: Settings
+  notify:
+      - restart firewall service
+      - restart queue service
+  template:
+      src: settings.py
+      dest: /opt/firewall/api/var/settings.py
+      mode: 0600
+
+
+# Project venv.
+
+- name: Venv
+  notify:
+      - restart firewall service
+      - restart queue service
+  command: python3 -m venv venv
+  args:
+      chdir: /opt/firewall/api/var
+      creates: /opt/firewall/api/var/venv
+  register: firewall_venv
+  # Upgrade
+  # Requirements
+
+- name: Upgrade
+  command: /opt/firewall/api/var/venv/bin/pip install --upgrade pip pip-tools
+  when: firewall_git is changed or firewall_venv is changed
+
+- name: Requirements
+  command: /opt/firewall/api/var/venv/bin/pip-sync requirements.txt
+  args:
+      chdir: /opt/firewall/api
+  when: firewall_git is changed or firewall_venv is changed
+
+
+# Migrate.
+
+- name: Stat db
+  stat:
+      path: /opt/firewall/api/var/db.sqlite3
+  register: firewall_db
+
+- name: Migrate
+  command: /opt/firewall/api/var/venv/bin/python manage.py migrate
+  args:
+      chdir: /opt/firewall/api
+  when: firewall_git is changed or not firewall_db.stat.exists
+
+
+# Systemd run directory.
+
+- name: Run directory
+  copy:
+      src: tmpfile
+      dest: /etc/tmpfiles.d/firewall.conf
+      mode: 0644
+
+- name: Stat run directory
+  stat:
+      path: /run/firewall
+  register: firewall_tmpfile
+  # Systemd-tmpfiles
+
+- name: Systemd-tmpfiles
+  command: /bin/systemd-tmpfiles --create firewall.conf
+  when: not firewall_tmpfile.stat.exists
+
+
+# Systemd services.
+
+- name: Firewall service file
+  notify:
+      - restart firewall service
+  copy:
+      src: service
+      dest: /etc/systemd/system/firewall.service
+      mode: 0644
+
+- name: Firewall service status
+  systemd:
+      name: firewall.service
+      enabled: true
+      daemon-reload: true
+
+- name: Queue service file
+  notify:
+      - restart queue service
+  copy:
+      src: q-service
+      dest: /etc/systemd/system/firewall-q.service
+      mode: 0644
+
+- name: Queue service status
+  systemd:
+      name: firewall-q.service
+      enabled: true
+      daemon-reload: true
+
+
+# Nginx servers.
+
+- name: HTTP server
+  notify:
+      - restart nginx service
+  template:
+      src: http.conf
+      dest: /etc/nginx/conf.d/firewall-http.conf
+      mode: 0644
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers

@@ -1,0 +1,21 @@
+---
+- name: Restart queue
+  listen:
+      - restart queue service
+  systemd:
+      name: firewall-q.service
+      state: restarted
+
+- name: Restart service
+  listen:
+      - restart firewall service
+  systemd:
+      name: firewall.service
+      state: restarted
+
+- name: Restart nginx service
+  listen:
+      - restart nginx service
+  systemd:
+      name: nginx.service
+      state: restarted

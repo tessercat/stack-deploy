@@ -8,8 +8,8 @@
       ipset_repo: https://github.com/tessercat/firewall-ipset.git
       ipset_version: master
 
-      firewall_api_repo: https://github.com/puptel/firewall-api.git
-      firewall_api_version: master
+      firewall_repo: https://github.com/tessercat/firewall-api.git
+      firewall_version: master
 
   roles:
       - {role: exim, tags: [exim]}
@@ -17,5 +17,4 @@
       - {role: nginx, tags: [nginx]}
       - {role: ipset, tags: [ipset, firewall]}
       - {role: iptables, tags: [iptables, firewall]}
-        # - {role: firewall, tags: [firewall]}
-        # - {role: dev, tags: [dev]}
+      - {role: firewall, tags: [firewall-api, firewall]}
