@@ -1,0 +1,34 @@
+---
+# OS
+
+- name: Packages
+  apt:
+      pkg:
+          - man
+          - mlocate
+
+- name: Editor
+  alternatives:
+      name: editor
+      path: /usr/bin/vim.basic
+
+
+# Root
+
+- name: Root .vim
+  git:
+      repo: https://github.com/tessercat/dotvim.git
+      dest: /root/.vim
+      version: master
+      force: true
+
+- name: Root .inputrc
+  file:
+      src: /root/.vim/inputrc
+      dest: /root/.inputrc
+      state: link
+
+- name: Root .bashrc
+  copy:
+      src: bashrc
+      dest: /root/.bashrc

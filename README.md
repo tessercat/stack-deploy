@@ -182,3 +182,14 @@ to keep the venv up to date.
 Run the `ansible-pull` command regularly,
 possibly in a systemd timer,
 to keep the stack up to date.
+
+
+# Development
+
+Run the following command on the host
+to have Ansible pull the repo
+and run `dev.yml` to set up for dev.
+
+    /opt/ansible/venv/bin/ansible-pull dev.yml \
+    -U https://github.com/tessercat/stack-deploy -i hosts \
+    -e @/opt/ansible/stack-vars.yml
