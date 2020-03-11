@@ -1,0 +1,14 @@
+[Unit]
+Description=ipset-clean service
+Requires=firewall.service
+After=firewall.service
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/firewall/api
+ExecStart=/opt/firewall/api/var/venv/bin/python manage.py cleanipset
+SyslogIdentifier=firewall
+
+[Install]
+WantedBy=multi-user.target

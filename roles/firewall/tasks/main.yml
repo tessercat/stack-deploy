@@ -144,17 +144,29 @@
       enabled: true
       daemon-reload: true
 
-- name: Queue service file
-  notify:
-      - restart queue service
+- name: Clean service file
   copy:
-      src: q-service
-      dest: /etc/systemd/system/firewall-q.service
+      src: clean-service
+      dest: /etc/systemd/system/ipset-clean.service
       mode: 0644
 
-- name: Queue service status
+- name: Clean service status
   systemd:
-      name: firewall-q.service
+      name: ipset-clean.service
+      enabled: true
+      daemon-reload: true
+
+- name: Clean timer file
+  notify:
+      - restart ipset-clean timer
+  copy:
+      src: clean-timer
+      dest: /etc/systemd/system/ipset-clean.timer
+      mode: 0644
+
+- name: Clean timer status
+  systemd:
+      name: ipset-clean.timer
       enabled: true
       daemon-reload: true
 

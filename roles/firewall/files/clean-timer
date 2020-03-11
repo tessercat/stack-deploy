@@ -1,0 +1,9 @@
+[Unit]
+Description=ipset-clean timer
+
+[Timer]
+OnCalendar=*-*-* 00:02:00
+RandomizedDelaySec=7200
+
+[Install]
+WantedBy=timers.target
