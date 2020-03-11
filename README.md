@@ -2,7 +2,7 @@
 
 This repo contains
 Ansible playbooks and roles
-that are meant to run in pull mode
+that run in pull mode
 to deploy a generally useful stack
 on an IPv4/IPv6 Debian 10 host
 that includes:
@@ -10,16 +10,12 @@ that includes:
 - Mailer config.
 - Let's Encrypt certificates.
 - Opinionated `iptables` and `ipset` configuration.
-- A custom firewall API
-  that bridges the gap
+- A simple custom firewall API
+  to bridge the gap
   between IPv4 and IPv6 network stacks.
 
 
-## Opinions
-
-The stack and I are both quite opinionated,
-though most of our opinions are open to change
-if we feel it's not too painful to adapt.
+## Stack host
 
 ### Debian 10
 
@@ -28,101 +24,30 @@ because its primary purpose
 is to run FreeSWITCH,
 and Debian 10 is the deployment platform
 recommended by the FreeSWITCH project.
-
-The stack may or may not
-work just as well on Ubuntu.
+The stack will probably work just as well on Ubuntu,
+though my pre-compiled FreeSWITCH binaries
+eventually won't run
+due to updates to shared libraries
+that FreeSWITCH depends on.
 
 ### Dual IPv4/IPv6 network stack
 
 The playbook assumes that the host is configured with
 at least one IPv4 address and one IPv6 address.
 
-### Email
-
-The stack makes it simple,
-but not mandatory,
-to configure `exim4`
-to send email via a third party SMTP service.
-If you don't change the `mail_*` and `exim_*` vars,
-all admin email goes to the `mail` account at `/var/mail/mail`.
-
-I like to use per-host Fastmail app passwords.
-Gmail also lets you create app passwords,
-but only when you enable
-what Google calls 2-step verification,
-and that requires giving Google a phone number,
-which is never going to happen.
-
-The `admin_email` address
-should not be in the same domain as the hostname
-or alert emails will stay on the host.
-
 ### Let's Encrypt certificates
 
 You must control a DNS domain
-to deploy this stack,
-so configure A and AAAA records for the host.
-When DNS records are configured correctly,
+to deploy this stack.
+Configure A and AAAA records for the host,
+and when DNS records are configured correctly,
 the nginx role generates Let's Encrypt certs automatically.
-
-### Firewall
-
-By default, the SSH port is open to the world,
-but hosts can be configured
-to disallow access to the (stack-vars-configurable) SSH port
-from all but whitelisted IP address.
-If you enable the `admin_whitelist` stack var,
-you must add whitelisted IP addresses
-(or CIDR subnets)
-to the host at
-`/opt/ipset/lists/whitelist4`
-or `/opt/ipset/lists/whitelist6`
-(one address/subnet per line)
-or use the firewall API
-to implement some kind of port knocking
-or you *will* lock yourself out
-when the ipset service runs.
-
-There are quite a few free services out there
-to check your public IP address.
-
-    https://ipecho.net/plain
-    https://icanhazip.com/
-    https://ifconfig.co/
-    https://ifconfig.me/
-
-The firewall also lets you blacklist addresses
-by placing addresses in files at
-`/opt/ipset/lists/blacklist4`
-and `/opt/ipset/lists/blacklist6`.
-
-If you change the lists,
-reload ipset and firewall services.
-
-    systemctl reload ipset.service
-    systemctl reload firewall.service
-
-### Python 3
-
-Though Ansible itself
-runs in a Python 3 venv,
-Ansible runs modules
-using the default interpreter
-unless the `ansible_python_interpreter` is specified.
-Since I like to use Python 3 where possible
-but Debian 10's default interpreter is still at Python 2.7,
-and since according to the
-[Ansible documentation](https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html),
-core modules should work fine in Python 3,
-a playbook var points the interpreter var
-at Debian's Python 3 interpreter.
 
 ### SSH daemon
 
 The stack has no opinion
 on how to configure the SSH daemon,
-but I do.
-I like to configure hosts
+but I like to configure hosts
 to allow root login only,
 and only by authorized key.
 To do so,
@@ -135,44 +60,105 @@ in `/etc/ssh/sshd_config`.
     PasswordAuthentication no
 
 
-# Setup
+## Ansible environment
 
-Run the following commands on the Debian 10 host as root
+Run the following commands
+as root on the Debian 10 host
 to install Ansible on the host in a Python 3 venv.
 
     mkdir -p /opt/ansible
     chmod 0700 /opt/ansible
     cd /opt/ansible
-    apt update
-    apt install git python3-venv python3-apt
+    apt -y update
+    apt -y install git python3-venv python3-apt
     python3 -m venv venv
 
-Run the following commands to upgrade pip and install Ansible.
+Run the following commands
+to upgrade pip and install Ansible
+in the venv.
 
     . venv/bin/activate
     pip install --upgrade pip
     pip install ansible
 
 
-# Deployment
+## Stack vars
 
 Copy the repo's `stack-vars.yml`
-to `/opt/ansible/`,
-read the comments,
-and modify it for the host.
+to `/opt/ansible/`.
 
     wget https://raw.githubusercontent.com/tessercat/stack-deploy/master/stack-vars.yml
 
+Read the comments,
+and modify the file for the host.
+
+### Email
+
+The stack makes it simple,
+but not mandatory,
+to configure `exim4`
+to send email via a third party SMTP service.
+If you don't change the `mail_*` and `exim_*` vars,
+all admin email goes to the `mail` account at `/var/mail/mail`.
+
+The `admin_email` address
+should not be in the same domain as the hostname
+or alert emails will stay on the host.
+
+### Firewall
+
+If you change any of the lists
+after installing the stack,
+reload ipset and firewall services.
+
+    systemctl reload ipset.service
+    systemctl reload firewall.service
+
+**Admin whitelist**
+
+By default, the SSH port is open to the world,
+but the firewall can be configured
+to disallow access to the (stack-vars-configurable) SSH port
+from all but whitelisted IP addresses
+by setting the `admin_whitelist` variable to `true`.
+
+If you enable the `admin_whitelist` stack var,
+you must add whitelisted IP addresses
+(or CIDR subnets)
+to the files at
+`/opt/ipset/lists/whitelist4`
+or `/opt/ipset/lists/whitelist6`
+(one address/subnet per line)
+or you *will* lock yourself out
+of future connections
+when the ipset service runs.
+
+You should also use the firewall API
+to implement some sort of port knocking
+in case your public IP address changes.
+
+**Blacklist**
+
+The iptables firewall
+blacklists addresses and subnets
+in files at
+`/opt/ipset/lists/blacklist4`
+and `/opt/ipset/lists/blacklist6`.
+The `admin_whitelist` variable
+doesn't have to be enabled to do so.
+
+
+## Installation
+
 Run the following command on the host
-to have Ansible pull the repo
-and run `local.yml` to deploy the stack.
+to deploy the stack.
 
     /opt/ansible/venv/bin/ansible-pull \
     -U https://github.com/tessercat/stack-deploy -i hosts \
     -e @/opt/ansible/stack-vars.yml
 
 
-# Maintenance
+## Maintenance
 
 Upgrade pip and Ansible
 to keep the venv up to date.
@@ -184,7 +170,7 @@ possibly in a systemd timer,
 to keep the stack up to date.
 
 
-# Development
+## Development
 
 Run the following command on the host
 to have Ansible pull the repo
