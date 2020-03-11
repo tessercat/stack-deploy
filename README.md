@@ -2,7 +2,6 @@
 
 This repo contains
 Ansible playbooks and roles
-that run in pull mode
 to deploy a generally useful stack
 on an IPv4/IPv6 Debian 10 host
 that includes:
@@ -98,7 +97,7 @@ The stack makes it simple,
 but not mandatory,
 to configure `exim4`
 to send email via a third party SMTP service.
-If you don't change the `mail_*` and `exim_*` vars,
+If you don't change the `admin_email` and `smtp_*` vars,
 all admin email goes to the `mail` account at `/var/mail/mail`.
 
 The `admin_email` address
@@ -174,7 +173,7 @@ to keep the stack up to date.
 
 Run the following command on the host
 to have Ansible pull the repo
-and run `dev.yml` to set up for dev.
+and run `dev.yml` to set up for dev as root.
 
     /opt/ansible/venv/bin/ansible-pull dev.yml \
     -U https://github.com/tessercat/stack-deploy -i hosts \
