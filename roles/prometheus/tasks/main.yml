@@ -1,0 +1,130 @@
+---
+# OS.
+
+- name: User
+  user:
+      name: prometheus
+      system: true
+      shell: /usr/sbin/nologin
+
+- name: Directory
+  file:
+      path: /opt/prometheus
+      state: directory
+      mode: 0700
+      owner: prometheus
+      group: prometheus
+
+
+# Download and install prometheus.
+
+- name: Stat archive
+  stat:
+      path: "/opt/prometheus/\
+             prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+  register: prom_archive
+  # Download
+
+- name: Download
+  get_url:
+      url: "https://github.com/prometheus/prometheus/releases/download/\
+            v{{ prometheus_version }}/\
+            prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+      dest: /opt/prometheus
+  when: not prom_archive.stat.exists
+  register: prom_download
+  # Clean
+
+- name: Clean
+  file:
+      path: /opt/prometheus/bin
+      state: absent
+  when: prom_download is changed
+
+- name: Stat bin
+  stat:
+      path: /opt/prometheus/bin
+  register: prom_bin
+  # Unarchive
+  # Install
+
+- name: Unarchive
+  unarchive:
+      src: "/opt/prometheus/\
+            prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+      dest: /opt/prometheus
+      remote_src: true
+      owner: prometheus
+      group: prometheus
+  when: not prom_bin.stat.exists
+
+- name: Move
+  command: "mv /opt/prometheus/\
+            prometheus-{{ prometheus_version }}.linux-amd64 \
+            /opt/prometheus/bin"
+  when: not prom_bin.stat.exists
+  register: prom_install
+  # Notify
+
+- name: Notify
+  notify:
+      - restart node exporter service
+  command: /bin/true
+  when: prom_install is changed
+
+
+# Configure, but only if config files don't already exist.
+
+- name: Stat config
+  stat:
+      path: /opt/prometheus/prometheus.yml
+  register: prom_conf
+  # Config
+
+- name: Config
+  notify:
+      - restart prometheus service
+  template:
+      src: prometheus.yml
+      dest: /opt/prometheus/prometheus.yml
+      owner: prometheus
+      group: prometheus
+  when: not prom_conf.stat.exists
+
+- name: Stat rules
+  stat:
+      path: /opt/prometheus/rules.yml
+  register: prom_rules
+  # Rules
+
+- name: Rules
+  notify:
+      - restart prometheus service
+  copy:
+      src: rules.yml
+      dest: /opt/prometheus/rules.yml
+      owner: prometheus
+      group: prometheus
+  when: not prom_rules.stat.exists
+
+
+# Service.
+
+- name: Service
+  notify:
+      - restart prometheus service
+  template:
+      src: service
+      dest: /etc/systemd/system/prometheus.service
+
+- name: Service status
+  systemd:
+      name: prometheus.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers

@@ -1,0 +1,100 @@
+---
+# OS.
+
+- name: User
+  user:
+      name: node_exporter
+      system: true
+      shell: /usr/sbin/nologin
+  tags: [metrics_bin]
+
+- name: Directory
+  file:
+      path: /opt/node_exporter
+      state: directory
+      mode: 0700
+      owner: node_exporter
+      group: node_exporter
+  tags: [metrics_bin]
+
+
+# Download and install node_exporter at /opt/node_exporter/bin.
+
+- name: Stat archive
+  stat:
+      path: "/opt/node_exporter/\
+             node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+  tags: [metrics_bin]
+  register: node_archive
+  # Download
+
+- name: Download
+  get_url:
+      url: "https://github.com/prometheus/node_exporter/releases/download/\
+            v{{ node_exporter_version }}/\
+            node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+      dest: /opt/node_exporter
+  when: not node_archive.stat.exists
+  tags: [metrics_bin]
+  register: node_download
+  # Clean
+
+- name: Clean
+  file:
+      path: /opt/node_exporter/bin
+      state: absent
+  when: node_download is changed
+  tags: [metrics_bin]
+
+- name: Stat bin
+  stat:
+      path: /opt/node_exporter/bin
+  tags: [metrics_bin]
+  register: node_bin
+  # Unarchive
+  # Install
+
+- name: Unarchive
+  unarchive:
+      src: "/opt/node_exporter/\
+            node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+      dest: /opt/node_exporter
+      remote_src: true
+      owner: node_exporter
+      group: node_exporter
+  when: not node_bin.stat.exists
+  tags: [metrics_bin]
+
+- name: Move
+  command: "mv /opt/node_exporter/\
+            node_exporter-{{ node_exporter_version }}.linux-amd64 \
+            /opt/node_exporter/bin"
+  when: not node_bin.stat.exists
+  tags: [metrics_bin]
+  register: node_install
+  # Notify
+
+- name: Notify
+  notify:
+      - restart node exporter service
+  command: /bin/true
+  when: node_install is changed
+
+- name: Service
+  notify:
+      - restart node exporter service
+  copy:
+      src: service
+      dest: /etc/systemd/system/node_exporter.service
+
+- name: Service status
+  systemd:
+      name: node_exporter.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers

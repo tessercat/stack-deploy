@@ -11,6 +11,10 @@
       firewall_repo: https://github.com/tessercat/firewall-api.git
       firewall_version: master
 
+      prometheus_version: 2.16.0
+      alertmanager_version: 0.20.0
+      node_exporter_version: 0.18.1
+
   roles:
       - {role: exim, tags: [exim]}
       - {role: host, tags: [host]}
@@ -18,3 +22,6 @@
       - {role: ipset, tags: [ipset, firewall]}
       - {role: iptables, tags: [iptables, firewall]}
       - {role: firewall, tags: [firewall-api, firewall]}
+      - {role: node_exporter, tags: [node_exporter, metrics]}
+      - {role: prometheus, tags: [prometheus, metrics]}
+      - {role: alertmanager, tags: [alertmanager, metrics]}

@@ -1,0 +1,12 @@
+---
+groups:
+  - name: node
+    rules:
+      - alert: InstanceDown
+        expr: up{job="node"} == 0
+        for: 5m
+  - name: firewall
+    rules:
+      - alert: InstanceDown
+        expr: up{job="firewall"} == 0
+        for: 5m

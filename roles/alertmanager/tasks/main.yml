@@ -1,0 +1,112 @@
+---
+# OS.
+
+- name: User
+  user:
+      name: alertmanager
+      system: true
+      shell: /usr/sbin/nologin
+  tags: [metrics_bin]
+
+- name: Directory
+  file:
+      path: /opt/alertmanager
+      state: directory
+      mode: 0700
+      owner: alertmanager
+      group: alertmanager
+  tags: [metrics_bin]
+
+
+# Download and install in /opt/alertmanager/bin.
+
+- name: Stat archive
+  stat:
+      path: "/opt/alertmanager/\
+             alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+  tags: [metrics_bin]
+  register: alert_archive
+  # Download
+
+- name: Download
+  get_url:
+      url: "https://github.com/prometheus/alertmanager/releases/download/\
+            v{{ alertmanager_version }}/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+      dest: /opt/alertmanager
+  when: not alert_archive.stat.exists
+  tags: [metrics_bin]
+  register: alert_download
+  # Clean
+
+- name: Clean
+  file:
+      path: /opt/alertmanager/bin
+      state: absent
+  when: alert_download is changed
+  tags: [metrics_bin]
+
+- name: Stat bin
+  stat:
+      path: /opt/alertmanager/bin
+  tags: [metrics_bin]
+  register: alert_bin
+  # Unarchive
+  # Install
+
+- name: Unarchive
+  unarchive:
+      src: "/opt/alertmanager/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+      dest: /opt/alertmanager
+      remote_src: true
+      owner: alertmanager
+      group: alertmanager
+  when: not alert_bin.stat.exists
+  tags: [metrics_bin]
+
+- name: Move
+  command: "mv /opt/alertmanager/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64 \
+            /opt/alertmanager/bin"
+  when: not alert_bin.stat.exists
+  tags: [metrics_bin]
+  register: alert_install
+  # Notify
+
+- name: Notify
+  notify:
+      - restart alertmanager service
+  command: /bin/true
+  when: alert_install is changed
+
+- name: Config
+  notify:
+      - restart alertmanager service
+  template:
+      src: alertmanager.yml
+      dest: /opt/alertmanager/alertmanager.yml
+      owner: alertmanager
+      group: alertmanager
+
+
+# Service.
+
+- name: Service
+  notify:
+      - restart alertmanager service
+  template:
+      src: service
+      dest: /etc/systemd/system/alertmanager.service
+
+- name: Service status
+  systemd:
+      name: alertmanager.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  meta: flush_handlers
