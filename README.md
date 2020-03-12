@@ -108,10 +108,9 @@ or alert emails will stay on the host.
 
 If you change any of the lists
 after installing the stack,
-reload ipset and firewall services.
+restart ipset and firewall services.
 
-    systemctl reload ipset.service
-    systemctl reload firewall.service
+    systemctl restart ipset.service firewall.service
 
 **Admin whitelist**
 
@@ -122,19 +121,21 @@ from all but whitelisted IP addresses
 by setting the `admin_whitelist` variable to `true`.
 
 If you enable the `admin_whitelist` stack var,
-you must add whitelisted IP addresses
-(or CIDR subnets)
-to the files at
-`/opt/ipset/lists/whitelist4`
-or `/opt/ipset/lists/whitelist6`
-(one address/subnet per line)
+you *must* whitelist your public IP address
 or you *will* lock yourself out
 of future connections
 when the ipset service runs.
 
+Add whitelisted addresses or CIDR subnets
+(one address/subnet per line)
+to `/opt/ipset/lists/whitelist4`
+or `/opt/ipset/lists/whitelist6`.
+
 You should also use the firewall API
 to implement some sort of port knocking
 in case your public IP address changes.
+The `firewall-app` repo
+can be used to do so for Django projects.
 
 **Blacklist**
 
@@ -149,7 +150,7 @@ doesn't have to be enabled to do so.
 
 ## Installation
 
-Run the following command on the host
+Run the following command as root on the host
 to deploy the stack.
 
     /opt/ansible/venv/bin/ansible-pull \
