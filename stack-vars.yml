@@ -25,9 +25,6 @@ other_hostnames: ""
 # The host's tzdata database time zone. Optional, change only if present.
 timezone: ""
 
-# Optional, change only if present.
-root_password: ""
-
 # SSH port. Required.
 admin_port: "22"
 
