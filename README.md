@@ -16,10 +16,10 @@ that includes:
 
 ## Stack host
 
-### Debian 10
+**Debian 10**
 
-The stack is Debian 10 only
-because its primary purpose
+The stack deploys to Debian 10
+only because its primary purpose
 is to run FreeSWITCH,
 and Debian 10 is the deployment platform
 recommended by the FreeSWITCH project.
@@ -29,12 +29,12 @@ eventually won't run
 due to updates to shared libraries
 that FreeSWITCH depends on.
 
-### Dual IPv4/IPv6 network stack
+**Dual IPv4/IPv6 network stack**
 
 The playbook assumes that the host is configured with
 at least one IPv4 address and one IPv6 address.
 
-### Let's Encrypt certificates
+**Let's Encrypt certificates**
 
 You must control a DNS domain
 to deploy this stack.
@@ -42,7 +42,7 @@ Configure A and AAAA records for the host,
 and when DNS records are configured correctly,
 the nginx role generates Let's Encrypt certs automatically.
 
-### SSH daemon
+**SSH daemon**
 
 The stack has no opinion
 on how to configure the SSH daemon,
@@ -91,7 +91,7 @@ to `/opt/ansible/`.
 Read the comments,
 and modify the file for the host.
 
-### Email
+**Email**
 
 The stack makes it simple,
 but not mandatory,
@@ -104,9 +104,19 @@ The `admin_email` address
 should not be in the same domain as the hostname
 or alert emails will stay on the host.
 
-### Firewall
+**Firewall**
 
-If you change any of the lists
+The firewall is ipset and iptables configuration
+and a simple HTTP API.
+
+The HTTP API lets localhost processes
+port knock the SSH port
+by adding addresses to admin whitelist ipsets,
+and it lets processes
+open and close other ports and ranges of ports
+by adding/deleting iptables INPUT ACCEPT rules.
+
+If you change any of the ipset lists in `/opt/ipset/lists`
 after installing the stack,
 restart ipset and firewall services.
 
@@ -139,9 +149,9 @@ can be used to do so for Django projects.
 
 **Blacklist**
 
-The iptables firewall
-blacklists addresses and subnets
-in files at
+The iptables firewall rules
+drop addresses and subnets
+in ipsets loaded from files at
 `/opt/ipset/lists/blacklist4`
 and `/opt/ipset/lists/blacklist6`.
 The `admin_whitelist` variable
@@ -150,8 +160,7 @@ doesn't have to be enabled to do so.
 
 ## Installation
 
-Run the following command as root on the host
-to deploy the stack.
+Run the following command as root to deploy the stack.
 
     /opt/ansible/venv/bin/ansible-pull \
     -U https://github.com/tessercat/stack-deploy -i hosts \
@@ -172,9 +181,7 @@ to keep the stack up to date.
 
 ## Development
 
-Run the following command on the host
-to have Ansible pull the repo
-and run `dev.yml` to set up for dev as root.
+Run the following command to set up for dev as root.
 
     /opt/ansible/venv/bin/ansible-pull dev.yml \
     -U https://github.com/tessercat/stack-deploy -i hosts \
