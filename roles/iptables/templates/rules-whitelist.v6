@@ -15,7 +15,7 @@
 -A INPUT -p ipv6-icmp -j ACCEPT
 
 # Accept whitelisted admin traffic before the blacklist.
--A INPUT -p tcp --dport {{ admin_port }} -m set --match-set admin6 src -j ACCEPT
+-A INPUT -p tcp --dport {{ admin_port }} -m set --match-set whitelist6 src -j ACCEPT
 
 # Drop backlisted traffic before becoming stateful.
 -A INPUT -m set --match-set blacklist6 src -j ACCEPT

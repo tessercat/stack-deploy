@@ -28,7 +28,7 @@
 -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
 
 # Accept whitelisted admin traffic before the blacklist.
--A INPUT -p tcp --dport {{ admin_port }} -m set --match-set admin4 src -j ACCEPT
+-A INPUT -p tcp --dport {{ admin_port }} -m set --match-set whitelist4 src -j ACCEPT
 
 # Apply blacklist before becoming stateful.
 -A INPUT -m set --match-set blacklist4 src -j DROP
