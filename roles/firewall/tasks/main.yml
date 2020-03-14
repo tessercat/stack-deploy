@@ -14,7 +14,7 @@
 
 - name: Directory
   file:
-      path: /opt/firewall,
+      path: /opt/firewall
       state: directory
       mode: 0755
 
