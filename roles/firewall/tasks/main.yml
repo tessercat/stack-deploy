@@ -27,7 +27,7 @@
 - name: Repo
   notify:
       - restart firewall service
-      - restart queue service
+      - restart ipset-clean timer
   git:
       repo: "{{ firewall_repo }}"
       dest: /opt/firewall/api
@@ -63,7 +63,7 @@
 - name: Settings
   notify:
       - restart firewall service
-      - restart queue service
+      - restart ipset-clean timer
   template:
       src: settings.py
       dest: /opt/firewall/api/var/settings.py
@@ -75,7 +75,7 @@
 - name: Venv
   notify:
       - restart firewall service
-      - restart queue service
+      - restart ipset-clean timer
   command: python3 -m venv venv
   args:
       chdir: /opt/firewall/api/var
