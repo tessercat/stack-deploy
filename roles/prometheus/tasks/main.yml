@@ -68,7 +68,7 @@
 
 - name: Notify
   notify:
-      - restart node exporter service
+      - restart prometheus exporter service
   command: /bin/true
   when: prom_install is changed
 
