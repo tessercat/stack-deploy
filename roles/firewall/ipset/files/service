@@ -10,8 +10,8 @@ Before=netfilter-persistent.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/bash /opt/ipset/commands.bash
-ExecReload=/bin/bash /opt/ipset/commands.bash
+ExecStart=/bin/bash /opt/firewall/ipset/commands.bash
+ExecReload=/bin/bash /opt/firewall/ipset/commands.bash
 SyslogIdentifier=ipset
 
 [Install]

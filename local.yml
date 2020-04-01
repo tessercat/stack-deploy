@@ -19,9 +19,9 @@
       - {role: exim, tags: [exim]}
       - {role: host, tags: [host]}
       - {role: nginx, tags: [nginx]}
-      - {role: ipset, tags: [ipset, firewall]}
-      - {role: iptables, tags: [iptables, firewall]}
-      - {role: firewall, tags: [firewall-api, firewall]}
-      - {role: node_exporter, tags: [node_exporter, metrics]}
-      - {role: prometheus, tags: [prometheus, metrics]}
-      - {role: alertmanager, tags: [alertmanager, metrics]}
+      - {role: firewall/ipset, tags: [ipset, firewall]}
+      - {role: firewall/iptables, tags: [iptables, firewall]}
+      - {role: firewall/api, tags: [firewall-api, firewall]}
+      - {role: metrics/node_exporter, tags: [node_exporter, metrics]}
+      - {role: metrics/prometheus, tags: [prometheus, metrics]}
+      - {role: metrics/alertmanager, tags: [alertmanager, metrics]}

@@ -4,10 +4,10 @@ Description=alertmanager service
 [Service]
 User=alertmanager
 Group=alertmanager
-ExecStart=/opt/alertmanager/bin/alertmanager \
---config.file="/opt/alertmanager/alertmanager.yml" \
+ExecStart=/opt/metrics/alertmanager/bin/alertmanager \
+--config.file="/opt/metrics/alertmanager/alertmanager.yml" \
 --cluster.listen-address="" \
---storage.path="/opt/alertmanager/data" \
+--storage.path="/opt/metrics/alertmanager/data" \
 --web.listen-address="localhost:9093" \
 --web.external-url="https://{{ hostname }}/alertmanager/" \
 --web.route-prefix="/alertmanager/"

@@ -116,7 +116,7 @@ and it lets processes
 open and close other ports and ranges of ports
 by adding/deleting iptables INPUT ACCEPT rules.
 
-If you change any of the ipset lists in `/opt/ipset/lists`
+If you change any of the ipset lists in `/opt/firewall/ipset/lists`
 after installing the stack,
 restart ipset and firewall services.
 
@@ -138,8 +138,8 @@ when the ipset service runs.
 
 Add whitelisted addresses or CIDR subnets
 (one address/subnet per line)
-to `/opt/ipset/lists/whitelist4`
-or `/opt/ipset/lists/whitelist6`.
+to `/opt/firewall/ipset/lists/whitelist4`
+or `/opt/firewall/ipset/lists/whitelist6`.
 
 You should also use the firewall API
 to implement some sort of port knocking
@@ -152,8 +152,8 @@ can be used to do so for Django projects.
 The iptables firewall rules
 drop addresses and subnets
 in ipsets loaded from files at
-`/opt/ipset/lists/blacklist4`
-and `/opt/ipset/lists/blacklist6`.
+`/opt/firewall/ipset/lists/blacklist4`
+and `/opt/firewall/ipset/lists/blacklist6`.
 The `admin_whitelist` variable
 doesn't have to be enabled to do so.
 

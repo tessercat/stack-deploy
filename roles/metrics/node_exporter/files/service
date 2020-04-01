@@ -4,7 +4,7 @@ Description=node_exporter service
 [Service]
 User=node_exporter
 Group=node_exporter
-ExecStart=/opt/node_exporter/bin/node_exporter \
+ExecStart=/opt/metrics/node_exporter/bin/node_exporter \
 --web.listen-address="localhost:9100"
 
 [Install]

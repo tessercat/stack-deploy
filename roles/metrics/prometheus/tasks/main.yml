@@ -7,9 +7,14 @@
       system: true
       shell: /usr/sbin/nologin
 
+- name: Metrics directory
+  file:
+      path: /opt/metrics
+      state: directory
+
 - name: Directory
   file:
-      path: /opt/prometheus
+      path: /opt/metrics/prometheus
       state: directory
       mode: 0700
       owner: prometheus
@@ -20,7 +25,7 @@
 
 - name: Stat archive
   stat:
-      path: "/opt/prometheus/\
+      path: "/opt/metrics/prometheus/\
              prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
   register: prom_archive
   # Download
@@ -30,38 +35,38 @@
       url: "https://github.com/prometheus/prometheus/releases/download/\
             v{{ prometheus_version }}/\
             prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
-      dest: /opt/prometheus
+      dest: /opt/metrics/prometheus
   when: not prom_archive.stat.exists
   register: prom_download
   # Clean
 
 - name: Clean
   file:
-      path: /opt/prometheus/bin
+      path: /opt/metrics/prometheus/bin
       state: absent
   when: prom_download is changed
 
 - name: Stat bin
   stat:
-      path: /opt/prometheus/bin
+      path: /opt/metrics/prometheus/bin
   register: prom_bin
   # Unarchive
   # Install
 
 - name: Unarchive
   unarchive:
-      src: "/opt/prometheus/\
+      src: "/opt/metrics/prometheus/\
             prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
-      dest: /opt/prometheus
+      dest: /opt/metrics/prometheus
       remote_src: true
       owner: prometheus
       group: prometheus
   when: not prom_bin.stat.exists
 
 - name: Move
-  command: "mv /opt/prometheus/\
+  command: "mv /opt/metrics/prometheus/\
             prometheus-{{ prometheus_version }}.linux-amd64 \
-            /opt/prometheus/bin"
+            /opt/metrics/prometheus/bin"
   when: not prom_bin.stat.exists
   register: prom_install
   # Notify
@@ -77,7 +82,7 @@
 
 - name: Stat config
   stat:
-      path: /opt/prometheus/prometheus.yml
+      path: /opt/metrics/prometheus/prometheus.yml
   register: prom_conf
   # Config
 
@@ -86,14 +91,14 @@
       - restart prometheus service
   template:
       src: prometheus.yml
-      dest: /opt/prometheus/prometheus.yml
+      dest: /opt/metrics/prometheus/prometheus.yml
       owner: prometheus
       group: prometheus
   when: not prom_conf.stat.exists
 
 - name: Stat rules
   stat:
-      path: /opt/prometheus/rules.yml
+      path: /opt/metrics/prometheus/rules.yml
   register: prom_rules
   # Rules
 
@@ -102,7 +107,7 @@
       - restart prometheus service
   copy:
       src: rules.yml
-      dest: /opt/prometheus/rules.yml
+      dest: /opt/metrics/prometheus/rules.yml
       owner: prometheus
       group: prometheus
   when: not prom_rules.stat.exists

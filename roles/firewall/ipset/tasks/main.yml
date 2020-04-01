@@ -13,14 +13,14 @@
 
 - name: Directory
   file:
-      path: /opt/ipset
+      path: /opt/firewall/ipset
       state: directory
       mode: 0700
 
 - name: Repo
   git:
       repo: "{{ ipset_repo }}"
-      dest: /opt/ipset
+      dest: /opt/firewall/ipset
       version: "{{ ipset_version }}"
       force: true
   register: ipset_repo

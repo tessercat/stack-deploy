@@ -6,25 +6,27 @@
       name: node_exporter
       system: true
       shell: /usr/sbin/nologin
-  tags: [metrics_bin]
+
+- name: Metrics directory
+  file:
+      path: /opt/metrics
+      state: directory
 
 - name: Directory
   file:
-      path: /opt/node_exporter
+      path: /opt/metrics/node_exporter
       state: directory
       mode: 0700
       owner: node_exporter
       group: node_exporter
-  tags: [metrics_bin]
 
 
-# Download and install node_exporter at /opt/node_exporter/bin.
+# Download and install node_exporter.
 
 - name: Stat archive
   stat:
-      path: "/opt/node_exporter/\
+      path: "/opt/metrics/node_exporter/\
              node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
-  tags: [metrics_bin]
   register: node_archive
   # Download
 
@@ -33,44 +35,39 @@
       url: "https://github.com/prometheus/node_exporter/releases/download/\
             v{{ node_exporter_version }}/\
             node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
-      dest: /opt/node_exporter
+      dest: /opt/metrics/node_exporter
   when: not node_archive.stat.exists
-  tags: [metrics_bin]
   register: node_download
   # Clean
 
 - name: Clean
   file:
-      path: /opt/node_exporter/bin
+      path: /opt/metrics/node_exporter/bin
       state: absent
   when: node_download is changed
-  tags: [metrics_bin]
 
 - name: Stat bin
   stat:
-      path: /opt/node_exporter/bin
-  tags: [metrics_bin]
+      path: /opt/metrics/node_exporter/bin
   register: node_bin
   # Unarchive
   # Install
 
 - name: Unarchive
   unarchive:
-      src: "/opt/node_exporter/\
+      src: "/opt/metrics/node_exporter/\
             node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
-      dest: /opt/node_exporter
+      dest: /opt/metrics/node_exporter
       remote_src: true
       owner: node_exporter
       group: node_exporter
   when: not node_bin.stat.exists
-  tags: [metrics_bin]
 
 - name: Move
-  command: "mv /opt/node_exporter/\
+  command: "mv /opt/metrics/node_exporter/\
             node_exporter-{{ node_exporter_version }}.linux-amd64 \
-            /opt/node_exporter/bin"
+            /opt/metrics/node_exporter/bin"
   when: not node_bin.stat.exists
-  tags: [metrics_bin]
   register: node_install
   # Notify
 

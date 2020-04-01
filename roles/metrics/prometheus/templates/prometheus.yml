@@ -3,7 +3,7 @@ global:
   external_labels:
     hostname: '{{ hostname }}'
 rule_files:
-  - '/opt/prometheus/rules.yml'
+  - '/opt/metrics/prometheus/rules.yml'
 alerting:
   alertmanagers:
     - path_prefix: '/alertmanager'
