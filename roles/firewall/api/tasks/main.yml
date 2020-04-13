@@ -177,8 +177,8 @@
   notify:
       - restart nginx service
   template:
-      src: http.conf
-      dest: /etc/nginx/conf.d/firewall-http.conf
+      src: firewall.conf
+      dest: /etc/nginx/conf.d/firewall.conf
       mode: 0644
 
 

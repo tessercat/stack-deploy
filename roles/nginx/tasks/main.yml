@@ -21,7 +21,7 @@
 - name: Default HTTP server
   notify:
       - restart nginx service
-  copy:
+  template:
       src: default.conf
       dest: /etc/nginx/conf.d/default.conf
 
@@ -29,7 +29,7 @@
 # Certbot.
 
 - name: Webroot
-  file_:
+  file:
       path: "{{ letsencrypt_webroot }}"
       state: directory
       owner: www-data

@@ -20,7 +20,7 @@
 - name: Certbot HTTP server
   listen:
       - run certbot
-  copy:
+  template:
       src: certbot.conf
       dest: /etc/nginx/conf.d/certbot.conf
 
