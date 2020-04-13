@@ -21,23 +21,16 @@
 - name: Default HTTP server
   notify:
       - restart nginx service
-  template:
-      src: http.conf
-      dest: /etc/nginx/conf.d/default-http.conf
-
-- name: Default HTTPS server
-  notify:
-      - restart nginx service
-  template:
-      src: https.conf
-      dest: /etc/nginx/conf.d/default-https.conf
+  copy:
+      src: default.conf
+      dest: /etc/nginx/conf.d/default.conf
 
 
 # Certbot.
 
 - name: Webroot
-  file:
-      path: /var/opt/acme-dir
+  file_:
+      path: "{{ letsencrypt_webroot }}"
       state: directory
       owner: www-data
       group: www-data

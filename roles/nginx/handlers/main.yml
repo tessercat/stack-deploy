@@ -21,8 +21,8 @@
   listen:
       - run certbot
   copy:
-      src: certbot-http.conf
-      dest: /etc/nginx/conf.d/default-http.conf
+      src: certbot.conf
+      dest: /etc/nginx/conf.d/certbot.conf
 
 - name: Restart nginx service
   listen:
@@ -38,7 +38,7 @@
   listen:
       - run certbot
   certbot:
-      acme_dir: /var/opt/acme-dir
+      webroot: "{{ letsencrypt_webroot }}"
       admin_email: "{{ letsencrypt_admin_email }}"
       hostname: "{{ hostname }}"
       other_hostnames: "{{ other_hostnames }}"

@@ -5,7 +5,7 @@ from subprocess import PIPE
 from ansible.module_utils.basic import AnsibleModule
 
 
-def _certbot(acme_dir, admin_email, hostname, other_hostnames):
+def _certbot(webroot, admin_email, hostname, other_hostnames):
     """ Run the certbot command (webroot plugin) to obtain a cert.
 
     Certbot is a Python library, but it seems to have been designed to be
@@ -23,7 +23,7 @@ def _certbot(acme_dir, admin_email, hostname, other_hostnames):
     # Run the certbot command.
     cmd = 'certbot certonly --agree-tos --webroot -n -m %s -w %s %s'
     hostparms = '-d %s' % ' -d '.join(hosts)
-    cmd = cmd % (admin_email, acme_dir, hostparms)
+    cmd = cmd % (admin_email, webroot, hostparms)
     popen = subprocess.Popen(cmd, stderr=PIPE, stdout=PIPE, shell=True)
     _, err = popen.communicate()
 
@@ -36,7 +36,7 @@ def _certbot(acme_dir, admin_email, hostname, other_hostnames):
 def main():
     """ Init and run module. """
     module = AnsibleModule(argument_spec={
-        'acme_dir': {'required': True},
+        'webroot': {'required': True},
         'admin_email': {'required': True},
         'hostname': {'required': True},
         'other_hostnames': {'required': True},  # Space delimited.
@@ -48,7 +48,7 @@ def main():
     }
     try:
         exit_json['changed'] = _certbot(
-            module.params['acme_dir'],
+            module.params['webroot'],
             module.params['admin_email'],
             module.params['hostname'],
             module.params['other_hostnames'],

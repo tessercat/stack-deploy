@@ -34,5 +34,6 @@ letsencrypt_admin_email: ""
 # Limit SSH access to whitelisted addresses. Be careful.
 admin_whitelist: false
 
-# Defined here so available to roles that build on the stack.
+# Values available to roles that build on the stack.
 firewall_api_port: 8100
+letsencrypt_webroot: "/var/opt/letsencrypt"
