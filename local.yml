@@ -11,7 +11,7 @@
       firewall_repo: https://github.com/tessercat/firewall-api.git
       firewall_version: master
 
-      prometheus_version: 2.17.1
+      prometheus_version: 2.17.2
       alertmanager_version: 0.20.0
       node_exporter_version: 0.18.1
 
