@@ -2,12 +2,14 @@
 
 # OS.
 
+# python3-dev and build-essential are for wheel setup compile tasks.
 - name: Packages
   apt:
       pkg:
           - git
-          - memcached
           - python3-venv
+          - python3-dev
+          - build-essential
 
 
 # Django project.
@@ -85,7 +87,7 @@
   # Requirements
 
 - name: Upgrade
-  command: /opt/firewall/api/var/venv/bin/pip install --upgrade pip pip-tools
+  command: /opt/firewall/api/var/venv/bin/pip install --upgrade pip wheel pip-tools
   when: firewall_git is changed or firewall_venv is changed
 
 - name: Requirements
