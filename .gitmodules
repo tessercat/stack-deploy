@@ -1,3 +1,0 @@
-[submodule "callback_plugins"]
-	path = callback_plugins
-	url = https://github.com/tessercat/mailer
