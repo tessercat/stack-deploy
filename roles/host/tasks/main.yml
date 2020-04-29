@@ -25,7 +25,7 @@
       path: /etc/ssh/sshd_config
       regexp: "^Port "
       state: absent
-  when: admin_port == "22"
+  when: ssh_port == "22"
 
 - name: Change SSH port
   notify:
@@ -33,9 +33,9 @@
   lineinfile:
       path: /etc/ssh/sshd_config
       regexp: "^Port "
-      line: "Port {{ admin_port }}"
+      line: "Port {{ ssh_port }}"
       insertafter: "^#Port "
-  when: admin_port != "22"
+  when: ssh_port != "22"
 
 
 # OS update.

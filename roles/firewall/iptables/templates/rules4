@@ -27,16 +27,16 @@
 -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
 -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
 
-# Apply blacklist before becoming stateful.
--A INPUT -m set --match-set blacklist4 src -j DROP
+# Drop traffic from addresses in the block4 ipset.
+-A INPUT -m set --match-set block4 src -j DROP
 
 # Be stateful.
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Accept SSH traffic.
--A INPUT -p tcp -m tcp --dport {{ admin_port }} -j ACCEPT
+# Accept all SSH traffic.
+-A INPUT -p tcp -m tcp --dport {{ ssh_port }} -j ACCEPT
 
-# Accept web traffic. Port 80 is for Let's Encrypt.
+# Accept web traffic.
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 

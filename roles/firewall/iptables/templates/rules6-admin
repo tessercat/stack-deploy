@@ -14,11 +14,11 @@
 # Accept all ICMP traffic.
 -A INPUT -p ipv6-icmp -j ACCEPT
 
-# Accept whitelisted admin traffic before the blacklist.
--A INPUT -p tcp --dport {{ admin_port }} -m set --match-set whitelist6 src -j ACCEPT
+# Accept traffic from addresses in the admin6 ipset.
+-A INPUT -p tcp --dport {{ ssh_port }} -m set --match-set admin6 src -j ACCEPT
 
-# Drop backlisted traffic before becoming stateful.
--A INPUT -m set --match-set blacklist6 src -j ACCEPT
+# Drop traffic from addresses in the block4 ipset.
+-A INPUT -m set --match-set block6 src -j ACCEPT
 
 # Be stateful.
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT

@@ -14,16 +14,16 @@
 # Accept all ICMP traffic.
 -A INPUT -p ipv6-icmp -j ACCEPT
 
-# Drop backlisted traffic before becoming stateful.
--A INPUT -m set --match-set blacklist6 src -j ACCEPT
+# Drop traffic from addresses in the block6 ipset.
+-A INPUT -m set --match-set block6 src -j ACCEPT
 
 # Be stateful.
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Accept SSH traffic.
--A INPUT -p tcp -m tcp --dport {{ admin_port }} -j ACCEPT
+# Accept all SSH traffic.
+-A INPUT -p tcp -m tcp --dport {{ ssh_port }} -j ACCEPT
 
-# Accept web traffic. Port 80 is for Let's Encrypt.
+# Accept web traffic.
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 

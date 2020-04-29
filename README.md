@@ -3,21 +3,14 @@
 This repo contains
 Ansible playbooks and roles
 to deploy a generally useful stack
-on an IPv4/IPv6 Debian-based host
+on a Debian-based host
 that includes:
 
-- Mailer config.
-- Let's Encrypt certificates.
+- Exim mailer config.
+- Nginx and Let's Encrypt certificates.
 - Opinionated `iptables` and `ipset` configuration.
-- A simple custom firewall API
-  to bridge the gap
-  between IPv4 and IPv6 network stacks.
-
-
-Ipset and iptables roles
-assume a dual network stack
-with at least one public IPv4 address
-and one public IPv6 address.
+- A simple localhost firewall API.
+- Basic prometheus node and firewall metrics/alerts.
 
 You must control a DNS domain
 to deploy this stack.
@@ -34,62 +27,52 @@ The stack makes it simple,
 but not mandatory,
 to configure `exim4`
 to send email via a third party SMTP service.
-If you don't change the `admin_email` and `smtp_*` vars,
-all admin email goes to the `mail` account at `/var/mail/mail`.
-
-The `admin_email` address
-should not be in the same domain as the hostname
-or alert emails will stay on the host.
+When configured correctly,
+services running on the host
+can send email to off-host addresses
+by sending mail to `localhost:25`.
 
 **Firewall**
 
-The firewall is ipset and iptables configuration
-and a simple HTTP API.
+The firewall is simple ipset and iptables configuration
+and a very simple HTTP API.
 
-The HTTP API lets localhost processes
-port knock the SSH port
-by adding addresses to admin whitelist ipsets,
-and it lets processes
-open and close other ports and ranges of ports
-by adding/deleting iptables INPUT ACCEPT rules.
+The firewall API lets localhost services:
 
-If you change any of the ipset lists in `/opt/firewall/ipset/lists`
-after installing the stack,
-restart ipset and firewall services.
+- Port knock the SSH port
+  by adding addresses to `admin4` and `admin6` ipsets.
+- Open/close other ports and ranges of ports
+  by adding/deleting iptables INPUT ACCEPT rules.
 
-    systemctl restart ipset.service firewall.service
+**Custom ipset address lists**
 
-**Admin whitelist**
+The ipset service
+loads addresses into ipsets
+from files in `/opt/firewall/ipset/lists/`.
 
-By default, the SSH port is open to the world,
-but the firewall can be configured
-to disallow access to the (stack-vars-configurable) SSH port
-from all but whitelisted IP addresses
-by setting the `admin_whitelist` variable to `true`.
+When the `ssh_admin_only` stack var is `true`,
+iptables drops all traffic to the SSH port
+except from addresses in `admin4` and `admin6` sets.
 
-If you enable the `admin_whitelist` stack var,
-you *must* whitelist your public IP address
-or you *will* lock yourself out
-of future connections
-when the ipset service runs.
+All traffic from addresses in `block4` and `block6` sets
+is dropped.
 
-Add whitelisted addresses or CIDR subnets
-(one address/subnet per line)
-to `/opt/firewall/ipset/lists/whitelist4`
-or `/opt/firewall/ipset/lists/whitelist6`.
+**SSH access**
 
-You should also use the firewall API
-to implement some sort of port knocking
-in case your public IP address changes.
+When the `ssh_admin_only` stack var is `false` (the default),
+the SSH port is open to the world.
+Set it to `true`
+to block access to the SSH port
+to all but addresses in admin ipsets.
+
+If you restrict access to the SSH port,
+you should place a public IP address
+in one of the admin address lists
+or you'll lock yourself out
+of future connections.
+
+You might also use the firewall API
+to implement port knocking.
 The `firewall-app` repo
-can be used to do so for Django projects.
-
-**Blacklist**
-
-The iptables firewall rules
-drop addresses and subnets
-in ipsets loaded from files at
-`/opt/firewall/ipset/lists/blacklist4`
-and `/opt/firewall/ipset/lists/blacklist6`.
-The `admin_whitelist` variable
-doesn't have to be enabled to do so.
+does so for Django projects
+on admin login.
