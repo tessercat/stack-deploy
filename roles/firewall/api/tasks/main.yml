@@ -57,8 +57,8 @@
       src: /opt/firewall/api/static
       dest: /opt/firewall
       remote_src: true
-      owner: www-data
-      group: www-data
+      owner: nginx
+      group: nginx
       mode: 0700
   when: not firewall_static.stat.exists
 
