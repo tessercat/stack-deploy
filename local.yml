@@ -13,8 +13,8 @@
       firewall_version: master
 
       prometheus_version: 2.19.0
-      alertmanager_version: 0.20.0
-      node_exporter_version: 1.0.0
+      alertmanager_version: 0.21.0
+      node_exporter_version: 1.0.1
 
   roles:
       - {role: exim, tags: [exim]}
