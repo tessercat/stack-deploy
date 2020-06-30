@@ -47,9 +47,9 @@
 # Configure the renewal script when cert exists.
 - name: Hook
   template:
-      src: certbot-post-hook
-      dest: /etc/letsencrypt/renewal-hooks/post/nginx
-      mode: 0755
+      src: hook
+      dest: /etc/letsencrypt/renewal-hooks/deploy/nginx
+      mode: 0700
   when: remote_cert_dir.stat.exists
 
 # Run certbot when cert doesn't exist.

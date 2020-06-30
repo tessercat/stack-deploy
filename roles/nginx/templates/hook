@@ -2,7 +2,7 @@
 # Restart nginx and email host admin.
 /bin/systemctl restart nginx
 TO_ADDR="{{ admin_email }}"
-FROM_ADDR="noreply@$CERTBOT_DOMAIN"
-SUBJECT="[$CERTBOT_DOMAIN] Let's Encrypt cert updated"
+FROM_ADDR="noreply@{{ hostname }}"
+SUBJECT="[{{ hostname }}] Let's Encrypt cert updated"
 BODY="Nginx restarted."
 echo "$BODY" | mail -s "$SUBJECT" -r "$FROM_ADDR" "$TO_ADDR"

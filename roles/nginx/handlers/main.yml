@@ -68,8 +68,8 @@
   listen:
       - run certbot
   template:
-      src: certbot-post-hook
-      dest: /etc/letsencrypt/renewal-hooks/post/nginx
+      src: hook
+      dest: /etc/letsencrypt/renewal-hooks/deploy/nginx
       mode: 0755
 
 
