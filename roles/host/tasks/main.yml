@@ -43,6 +43,7 @@
 - name: Update
   apt:
       update-cache: true
+  changed_when: false
 
 - name: Upgrade
   apt:
