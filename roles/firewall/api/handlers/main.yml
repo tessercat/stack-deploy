@@ -15,7 +15,7 @@
 
 - name: Restart nginx service
   listen:
-      - restart nginx service
+      - restart firewall nginx service
   systemd:
       name: nginx.service
       state: restarted

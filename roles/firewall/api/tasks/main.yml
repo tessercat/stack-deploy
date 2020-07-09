@@ -177,7 +177,7 @@
 
 - name: HTTP server
   notify:
-      - restart nginx service
+      - restart firewall nginx service
   template:
       src: firewall.conf
       dest: /etc/nginx/conf.d/firewall.conf
