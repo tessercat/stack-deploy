@@ -12,10 +12,3 @@
   systemd:
       name: ipset-clean.timer
       state: restarted
-
-- name: Restart nginx service
-  listen:
-      - restart firewall nginx service
-  systemd:
-      name: nginx.service
-      state: restarted

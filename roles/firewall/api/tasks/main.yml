@@ -36,31 +36,9 @@
       version: "{{ firewall_version }}"
       force: true
   register: firewall_git
-  # Clean
   # Upgrade
   # Requirements
   # Migrate
-
-- name: Clean static
-  file:
-      path: /opt/firewall/static
-      state: absent
-  when: firewall_git is changed
-
-- name: Stat static
-  stat:
-      path: /opt/firewall/static
-  register: firewall_static
-
-- name: Static
-  copy:
-      src: /opt/firewall/api/static
-      dest: /opt/firewall
-      remote_src: true
-      owner: nginx
-      group: nginx
-      mode: 0700
-  when: not firewall_static.stat.exists
 
 - name: Settings
   notify:
@@ -111,31 +89,18 @@
   when: firewall_git is changed or not firewall_db.stat.exists
 
 
-# Systemd run directory.
-
-- name: Run directory
-  copy:
-      src: tmpfile
-      dest: /etc/tmpfiles.d/firewall.conf
-      mode: 0644
-
-- name: Stat run directory
-  stat:
-      path: /run/firewall
-  register: firewall_tmpfile
-  # Systemd-tmpfiles
-
-- name: Systemd-tmpfiles
-  command: /bin/systemd-tmpfiles --create firewall.conf
-  when: not firewall_tmpfile.stat.exists
-
-
 # Systemd services.
+
+- name: Service detection script
+  copy:
+      src: altp.bash
+      dest: /opt/firewall/api/var/altp
+      mode: 0700
 
 - name: Firewall service file
   notify:
       - restart firewall service
-  copy:
+  template:
       src: service
       dest: /etc/systemd/system/firewall.service
       mode: 0644
@@ -171,17 +136,6 @@
       name: ipset-clean.timer
       enabled: true
       daemon-reload: true
-
-
-# Nginx servers.
-
-- name: HTTP server
-  notify:
-      - restart firewall nginx service
-  template:
-      src: firewall.conf
-      dest: /etc/nginx/conf.d/firewall.conf
-      mode: 0644
 
 
 # Handlers.
