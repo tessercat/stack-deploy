@@ -7,10 +7,10 @@
   vars:
 
       ipset_repo: https://github.com/tessercat/firewall-ipset.git
-      ipset_version: master
+      ipset_version: stable
 
       firewall_repo: https://github.com/tessercat/firewall-api.git
-      firewall_version: master
+      firewall_version: stable
 
       prometheus_version: 2.21.0
       alertmanager_version: 0.21.0
