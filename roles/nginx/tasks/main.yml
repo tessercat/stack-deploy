@@ -8,6 +8,13 @@
           - certbot
           - nginx
 
+- name: Remove default HTTP server
+  notify:
+      - restart nginx service
+  file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
 - name: Default HTTP server
   notify:
       - restart nginx service
