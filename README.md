@@ -8,8 +8,8 @@ that includes:
 
 - Exim mailer config.
 - Nginx and Let's Encrypt certificates.
-- Opinionated `iptables` and `ipset` configuration.
-- A simple localhost firewall API.
+- Opinionated `iptables` and `ipset` configuration
+  and a localhost-only firewall service to manage it.
 - Basic prometheus node and firewall metrics/alerts.
 
 You must control a DNS domain
@@ -17,6 +17,13 @@ to deploy this stack.
 Configure A and AAAA records for the host,
 and when DNS records are configured correctly,
 the nginx role generates Let's Encrypt certs automatically.
+
+
+## Other stack repos
+
+- [firewall-api](https://github.com/tessercat/firewall-api) An HTTP POST API to manage ipset entries and iptables rules on localhost.
+- [firewall-ipset](https://github.com/tessercat/firewall-ipset) Restore files and bash commands to configure ipsets for the firewall API.
+- [firewall-app](https://github.com/tessercat/firewall-app) A Django app for the firewall API.
 
 
 ## Stack vars
