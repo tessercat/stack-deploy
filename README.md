@@ -23,7 +23,6 @@ the nginx role generates Let's Encrypt certs automatically.
 
 - [firewall-api](https://github.com/tessercat/firewall-api) An HTTP POST API to manage ipset entries and iptables rules on localhost.
 - [firewall-ipset](https://github.com/tessercat/firewall-ipset) Restore files and bash commands to configure ipsets for the firewall API.
-- [firewall-app](https://github.com/tessercat/firewall-app) A Django app for the firewall API.
 
 
 ## Stack vars
@@ -79,7 +78,5 @@ or you'll lock yourself out
 of future connections.
 
 You might also use the firewall API
-to implement port knocking.
-The `firewall-app` repo
-does so for Django projects
-on admin login.
+to implement port knocking
+of some kind.
