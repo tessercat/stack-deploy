@@ -1,0 +1,7 @@
+---
+- name: Restart nginx service
+  listen:
+      - restart stack nginx service
+  ansible.builtin.systemd:
+      name: nginx.service
+      state: restarted

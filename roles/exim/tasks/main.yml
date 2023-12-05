@@ -1,0 +1,65 @@
+---
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - exim4
+
+- name: Configtype smarthost
+  notify:
+      - update exim conf
+      - restart exim service
+  ansible.builtin.lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_eximconfig_configtype="
+      line: "dc_eximconfig_configtype='smarthost'"
+  when: "'localhost' not in admin_email"
+
+- name: Configtype local
+  notify:
+      - update exim conf
+      - restart exim service
+  ansible.builtin.lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_eximconfig_configtype="
+      line: "dc_eximconfig_configtype='local'"
+  when: "'localhost' in admin_email"
+
+- name: Smarthost
+  notify:
+      - update exim conf
+      - restart exim service
+  ansible.builtin.lineinfile:
+      dest: /etc/exim4/update-exim4.conf.conf
+      regexp: "^dc_smarthost="
+      line: "dc_smarthost='{{ smtp_server }}::587'"
+  when: smtp_server != ""
+
+- name: Credentials
+  notify:
+      - update exim conf
+      - restart exim service
+  ansible.builtin.copy:
+      dest: /etc/exim4/passwd.client
+      content: "{{ smtp_server }}:{{ smtp_username }}:\
+                {{ smtp_password }}"
+      group: Debian-exim
+      mode: "0640"
+  when:
+      smtp_server != ""
+      and smtp_username != ""
+      and smtp_password != ""
+
+- name: Mailname
+  notify:
+      - restart exim service
+  ansible.builtin.copy:
+      content: "{{ hostname }}"
+      dest: /etc/mailname
+      mode: "0644"
+  when: admin_email != "root@localhost"
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

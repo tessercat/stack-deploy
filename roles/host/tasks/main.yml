@@ -1,0 +1,65 @@
+---
+
+# Basic stuff.
+
+- name: Hostname
+  notify:
+      - notify reboot
+  ansible.builtin.hostname:
+      name: "{{ hostname }}"
+
+- name: Timezone
+  notify:
+      - notify reboot
+  community.general.timezone:
+      name: "{{ timezone }}"
+  when: timezone != ""
+
+
+# SSH port.
+
+- name: Revert SSH port
+  notify:
+      - notify restart sshd
+  ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: "^Port "
+      state: absent
+  when: ssh_port == "22"
+
+- name: Change SSH port
+  notify:
+      - notify restart sshd
+  ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: "^Port "
+      line: "Port {{ ssh_port }}"
+      insertafter: "^#Port "
+  when: ssh_port != "22"
+
+
+# OS update.
+
+- name: Update
+  ansible.builtin.apt:
+      update-cache: true
+  changed_when: false
+
+- name: Upgrade
+  ansible.builtin.apt:
+      upgrade: full
+  register: admin_email_note
+
+- name: Open files
+  ansible.builtin.shell:
+      cmd: set -o pipefail && lsof | grep lib | grep DEL
+      executable: /bin/bash
+  register: admin_email_note
+  changed_when: admin_email_note.rc == 0
+  failed_when: false
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,210 @@
+---
+
+# OS.
+
+- name: DebConf
+  ansible.builtin.debconf:
+    name: iptables-persistent
+    question: "{{ item }}"
+    value: "false"
+    vtype: boolean
+  with_items:
+    - iptables-persistent/autosave_v4
+    - iptables-persistent/autosave_v6
+
+- name: Packages
+  ansible.builtin.apt:
+    pkg:
+      - git
+      - ipset
+      - iptables-persistent
+
+
+# Repo.
+
+- name: Directory
+  ansible.builtin.file:
+    path: /opt/firewall/config
+    state: directory
+    mode: "0700"
+
+- name: Repo
+  ansible.builtin.git:
+    repo: "{{ firewall_config_repo }}"
+    dest: /opt/firewall/config
+    version: "{{ firewall_config_version }}"
+    force: true
+
+
+# Netfilter modules.
+
+- name: Sets module
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: mod-sets
+    dest: /usr/share/netfilter-persistent/plugins.d/10-sets
+    mode: "0755"
+
+- name: Rules v4 module
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: mod-rules.v4
+    dest: /usr/share/netfilter-persistent/plugins.d/20-ip4rules
+    mode: "0755"
+
+- name: Rules v6 module
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: mod-rules.v6
+    dest: /usr/share/netfilter-persistent/plugins.d/30-ip6rules
+    mode: "0755"
+
+
+# Sets.
+
+- name: IPv4 admin set
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: set-admin.v4
+    dest: /opt/firewall/config/sets/admin.v4
+    mode: "0755"
+
+- name: IPv6 admin set
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: set-admin.v6
+    dest: /opt/firewall/config/sets/admin.v6
+    mode: "0755"
+
+
+# IPv4 rules.
+
+- name: IPv4 base rules
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules.v4
+    dest: /etc/iptables/rules.v4
+    mode: "0644"
+
+- name: IPv4 SSH rule absent
+  notify:
+    - restart iptables service
+  ansible.builtin.file:
+    path: /opt/firewall/config/rules/v4/000-ssh
+    state: absent
+  when: ssh_admin_only
+
+- name: IPv4 SSH rule
+  notify:
+    - restart iptables service
+  ansible.builtin.template:
+    src: rules-ssh
+    dest: /opt/firewall/config/rules/v4/000-ssh
+    mode: "0644"
+  when: not ssh_admin_only
+
+- name: IPv4 admin rule absent
+  notify:
+    - restart iptables service
+  ansible.builtin.file:
+    path: /opt/firewall/config/rules/v4/000-admin
+    state: absent
+  when: not ssh_admin_only
+
+- name: IPv4 admin rule
+  notify:
+    - restart iptables service
+  ansible.builtin.template:
+    src: rules-admin.v4
+    dest: /opt/firewall/config/rules/v4/000-admin
+    mode: "0644"
+  when: ssh_admin_only
+
+- name: IPv4 stateful rule
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules-stateful
+    dest: /opt/firewall/config/rules/v4/100-stateful
+    mode: "0644"
+
+- name: IPv4 web rules
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules-web
+    dest: /opt/firewall/config/rules/v4/200-web
+    mode: "0644"
+
+
+# IPv6 rules.
+
+- name: IPv6 base rules
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules.v6
+    dest: /etc/iptables/rules.v6
+    mode: "0644"
+
+- name: IPv6 SSH rule absent
+  notify:
+    - restart iptables service
+  ansible.builtin.file:
+    path: /opt/firewall/config/rules/v6/000-ssh
+    state: absent
+  when: ssh_admin_only
+
+- name: IPv6 SSH rule
+  notify:
+    - restart iptables service
+  ansible.builtin.template:
+    src: rules-ssh
+    dest: /opt/firewall/config/rules/v6/000-ssh
+    mode: "0644"
+  when: not ssh_admin_only
+
+- name: IPv6 admin rule absent
+  notify:
+    - restart iptables service
+  ansible.builtin.file:
+    path: /opt/firewall/config/rules/v6/000-admin
+    state: absent
+  when: not ssh_admin_only
+
+- name: IPv6 admin rule
+  notify:
+    - restart iptables service
+  ansible.builtin.template:
+    src: rules-admin.v6
+    dest: /opt/firewall/config/rules/v6/000-admin
+    mode: "0644"
+  when: ssh_admin_only
+
+- name: IPv4 stateful rule
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules-stateful
+    dest: /opt/firewall/config/rules/v6/100-stateful
+    mode: "0644"
+
+- name: IPv4 web rules
+  notify:
+    - restart iptables service
+  ansible.builtin.copy:
+    src: rules-web
+    dest: /opt/firewall/config/rules/v6/200-web
+    mode: "0644"
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

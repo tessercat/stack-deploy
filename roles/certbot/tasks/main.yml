@@ -1,0 +1,43 @@
+---
+
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+
+- name: Sites-enabled
+  notify:
+      - restart certbot nginx service
+  ansible.builtin.file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
+- name: Default
+  ansible.builtin.copy:
+      src: nginx.conf
+      dest: /etc/nginx/conf.d/default.conf
+      owner: root
+      group: root
+      mode: "0700"
+
+- name: Certbot
+  certbot:
+      admin_email: "{{ letsencrypt_admin_email }}"
+      hostname: "{{ hostname }}"
+      other_hostnames: "{{ other_hostnames }}"
+
+- name: Hook
+  ansible.builtin.template:
+      src: hook
+      dest: /etc/letsencrypt/renewal-hooks/deploy/admin
+      owner: root
+      group: root
+      mode: "0700"
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

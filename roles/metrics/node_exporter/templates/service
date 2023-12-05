@@ -1,0 +1,18 @@
+[Unit]
+Description=node_exporter service
+
+[Service]
+User=node_exporter
+Group=node_exporter
+ExecStart=/opt/metrics/node_exporter/bin/node_exporter \
+--web.listen-address="localhost:9100" \
+--web.disable-exporter-metrics \
+--collector.disable-defaults \
+--collector.cpu \
+--collector.filesystem \
+--collector.meminfo \
+--collector.systemd \
+--collector.systemd.unit-include="{{ monitored_services|join('|') }}"
+
+[Install]
+WantedBy=multi-user.target

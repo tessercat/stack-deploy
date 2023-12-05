@@ -1,0 +1,64 @@
+---
+groups:
+
+  # Exporter
+  - name: exporter
+    rules:
+
+      - alert: InstanceDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Node exporter down for 2m
+
+
+  # Resources https://awesome-prometheus-alerts.grep.to/rules
+  - name: resources
+    rules:
+
+      - alert: HostOutOfMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Memory < 10% for 2m
+
+      - alert: HostOutOfDiskSpace
+        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summay: Disk space < 10% for 2m
+
+      - alert: HostHighCpuLoad
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[3m])) * 100) > 80
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: CPU load > 80% for 3m
+
+      - alert: HostCpuStealNoisyNeighbor
+        expr: avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: CPU steal > 10% for 5m
+
+
+  # Services
+  - name: services
+    rules:
+
+      - alert: ServiceDown
+        expr: node_systemd_unit_state{state="active",name=~"{{ monitored_services|join('|') }}"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Service down for 2m

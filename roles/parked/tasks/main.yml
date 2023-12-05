@@ -1,0 +1,42 @@
+---
+- name: Deployment directory
+  ansible.builtin.file:
+      path: /opt/stack
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Web directory
+  ansible.builtin.file:
+      path: /opt/stack/web
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "0700"
+
+- name: Web
+  become: true
+  become_user: www-data
+  ansible.builtin.git:
+      repo: "{{ stack_web_repo }}"
+      dest: /opt/stack/web
+      version: "{{ stack_web_version }}"
+      force: true
+
+- name: Park
+  notify:
+      - restart stack nginx service
+  ansible.builtin.template:
+      src: nginx.conf
+      dest: "/etc/nginx/conf.d/{{ parked_domain }}.conf"
+      mode: "0644"
+  loop: "{{ parked_domains }}"
+  loop_control:
+      loop_var: parked_domain
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers
