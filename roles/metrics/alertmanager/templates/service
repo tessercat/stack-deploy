@@ -1,0 +1,15 @@
+[Unit]
+Description=alertmanager service
+
+[Service]
+User=alertmanager
+Group=alertmanager
+ExecStart=/opt/metrics/alertmanager/bin/alertmanager \
+--config.file="/opt/metrics/alertmanager/alertmanager.yml" \
+--cluster.listen-address="" \
+--storage.path="/opt/metrics/alertmanager/data" \
+--web.listen-address="localhost:9093" \
+--web.external-url="https://{{ hostname }}/metrics/alertmanager/"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,35 @@
+---
+# OS
+
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - man
+          - mlocate
+
+- name: Editor
+  community.general.alternatives:
+      name: editor
+      path: /usr/bin/vim.basic
+
+
+# Root
+
+- name: Root .vim
+  ansible.builtin.git:
+      repo: https://github.com/tessercat/dotvim.git
+      dest: /root/.vim
+      version: master
+      force: true
+
+- name: Root .inputrc
+  ansible.builtin.file:
+      src: /root/.vim/inputrc
+      dest: /root/.inputrc
+      state: link
+
+- name: Root .bashrc
+  ansible.builtin.copy:
+      src: bashrc
+      dest: /root/.bashrc
+      mode: "0644"

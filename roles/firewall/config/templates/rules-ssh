@@ -1,0 +1,1 @@
+-A INPUT --protocol tcp --dport {{ ssh_port }} -j ACCEPT

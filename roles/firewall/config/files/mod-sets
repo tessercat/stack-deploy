@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+start|restart|reload|force-reload)
+    /bin/bash /opt/firewall/config/sets.bash
+    ;;
+save)
+    echo "Save not implemented"
+    ;;
+stop)
+    echo "Stop not implemented"
+    ;;
+flush)
+    echo "Flush not implemented"
+    ;;
+*)
+    echo "Usage: $0 {start|restart|reload|force-reload|save|flush}" >&2
+    exit 1
+    ;;
+esac

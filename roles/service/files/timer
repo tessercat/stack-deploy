@@ -1,0 +1,11 @@
+[Unit]
+Description=stack-deploy timer
+
+[Timer]
+OnBootSec=
+OnCalendar=*-*-* 05:00:00
+RandomizedDelaySec=7200
+Unit=stack-deploy.service
+
+[Install]
+WantedBy=timers.target

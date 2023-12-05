@@ -1,0 +1,122 @@
+---
+# OS.
+
+- name: User
+  ansible.builtin.user:
+      name: prometheus
+      system: true
+      shell: /usr/sbin/nologin
+
+- name: Metrics directory
+  ansible.builtin.file:
+      path: /opt/metrics
+      state: directory
+      mode: "0755"
+
+- name: Directory
+  ansible.builtin.file:
+      path: /opt/metrics/prometheus
+      state: directory
+      mode: "0700"
+      owner: prometheus
+      group: prometheus
+
+
+# Download and install prometheus.
+
+- name: Stat archive
+  ansible.builtin.stat:
+      path: "/opt/metrics/prometheus/\
+             prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+  register: prom_archive
+  # Download
+
+- name: Download
+  ansible.builtin.get_url:
+      url: "https://github.com/prometheus/prometheus/releases/download/\
+            v{{ prometheus_version }}/\
+            prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+      dest: /opt/metrics/prometheus
+      mode: "0644"
+  when: not prom_archive.stat.exists
+  register: prom_download
+  # Clean
+
+- name: Clean
+  ansible.builtin.file:
+      path: /opt/metrics/prometheus/bin
+      state: absent
+  when: prom_download is changed  # noqa: no-handler
+
+- name: Stat bin
+  ansible.builtin.stat:
+      path: /opt/metrics/prometheus/bin
+  register: prom_bin
+  # Unarchive
+  # Move
+
+- name: Unarchive
+  ansible.builtin.unarchive:
+      src: "/opt/metrics/prometheus/\
+            prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+      dest: /opt/metrics/prometheus
+      remote_src: true
+      owner: prometheus
+      group: prometheus
+  when: not prom_bin.stat.exists
+
+- name: Move
+  notify:
+      - restart prometheus service
+  ansible.builtin.command:
+      cmd: "mv /opt/metrics/prometheus/\
+            prometheus-{{ prometheus_version }}.linux-amd64 \
+            /opt/metrics/prometheus/bin"
+  when: not prom_bin.stat.exists
+  changed_when: true
+
+
+# Configure.
+
+- name: Config
+  notify:
+      - restart prometheus service
+  ansible.builtin.template:
+      src: prometheus.yml
+      dest: /opt/metrics/prometheus/prometheus.yml
+      mode: "0644"
+      owner: prometheus
+      group: prometheus
+
+- name: Rules
+  notify:
+      - restart prometheus service
+  ansible.builtin.template:
+      src: rules
+      dest: /opt/metrics/prometheus/rules.yml
+      mode: "0644"
+      owner: prometheus
+      group: prometheus
+
+
+# Service.
+
+- name: Service
+  notify:
+      - restart prometheus service
+  ansible.builtin.template:
+      src: service
+      dest: /etc/systemd/system/prometheus.service
+      mode: "0644"
+
+- name: Service status
+  ansible.builtin.systemd:
+      name: prometheus.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

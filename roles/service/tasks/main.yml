@@ -1,0 +1,38 @@
+---
+
+# Systemd.
+
+- name: Disable apt-daily
+  ansible.builtin.systemd:
+      name: apt-daily.timer
+      state: stopped
+      enabled: false
+
+- name: Disable apt-daily-upgrade
+  ansible.builtin.systemd:
+      name: apt-daily-upgrade.timer
+      state: stopped
+      enabled: false
+
+- name: Remove unattended-upgrades
+  ansible.builtin.apt:
+      name: unattended-upgrades
+      state: absent
+
+- name: Service
+  ansible.builtin.copy:
+      src: service
+      dest: /etc/systemd/system/stack-deploy.service
+      mode: "0644"
+
+- name: Timer
+  ansible.builtin.copy:
+      src: timer
+      dest: /etc/systemd/system/stack-deploy.timer
+      mode: "0644"
+
+- name: Timer status
+  ansible.builtin.systemd:
+      name: stack-deploy.timer
+      enabled: true
+      daemon-reload: true

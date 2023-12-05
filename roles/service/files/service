@@ -1,0 +1,12 @@
+[Unit]
+Description=stack-deploy service
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/installer
+ExecStart=/opt/installer/venv/bin/python /opt/installer/venv/bin/ansible-playbook stack-deploy/deploy.yml -i stack-deploy/hosts -e @stack-vars.yml
+SyslogIdentifier=stack-deploy
+
+[Install]
+WantedBy=multi-user.target

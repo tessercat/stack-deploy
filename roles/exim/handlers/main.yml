@@ -1,0 +1,15 @@
+---
+
+- name: Update
+  listen:
+    - update exim conf
+  ansible.builtin.command:
+    cmd: update-exim4.conf
+  changed_when: false
+
+- name: Restart service
+  listen:
+    - restart exim service
+  ansible.builtin.service:
+    name: exim4
+    state: restarted

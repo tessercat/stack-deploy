@@ -1,0 +1,16 @@
+[Unit]
+Description=firewall service
+After=network-online.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/firewall/service
+ExecStart=/opt/firewall/service/venv/bin/uvicorn --port {{ firewall_service_port }} app:app
+ExecStartPost=/opt/firewall/service/await.bash {{ firewall_service_port }}
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+SyslogIdentifier=firewall
+
+[Install]
+WantedBy=multi-user.target

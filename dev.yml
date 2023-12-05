@@ -1,0 +1,7 @@
+---
+- name: Configure stack for dev
+  hosts: localhost
+  become: false
+  gather_facts: false
+  roles:
+      - {role: dev, tags: [dev]}

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Email host admin on cert renewal.
+TO_ADDR="{{ admin_email }}"
+FROM_ADDR="noreply@{{ hostname }}"
+SUBJECT="[{{ hostname }}] Let's Encrypt cert update"
+BODY="Cert renewed.\n\n$(env)"
+echo "$BODY" | mail -s "$SUBJECT" -r "$FROM_ADDR" "$TO_ADDR"

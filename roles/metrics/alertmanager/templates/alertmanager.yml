@@ -1,0 +1,11 @@
+---
+global:
+    smtp_smarthost: 'localhost:25'
+    smtp_from: 'alertmanager@{{ hostname }}'
+    smtp_require_tls: false
+route:
+    receiver: host-admin
+receivers:
+    - name: host-admin
+      email_configs:
+          - to: '{{ admin_email }}'

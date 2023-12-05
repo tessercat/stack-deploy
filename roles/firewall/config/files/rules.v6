@@ -1,0 +1,18 @@
+# Chains.
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# Implement a default deny policy.
+-P INPUT DROP
+-P FORWARD DROP
+
+# Accept loopback traffic.
+-A INPUT -i lo -j ACCEPT
+
+# Accept all ICMP traffic.
+-A INPUT -p ipv6-icmp -j ACCEPT
+
+# And finally.
+COMMIT

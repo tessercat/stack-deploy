@@ -1,0 +1,110 @@
+---
+# OS.
+
+- name: User
+  ansible.builtin.user:
+      name: alertmanager
+      system: true
+      shell: /usr/sbin/nologin
+
+- name: Metrics directory
+  ansible.builtin.file:
+      path: /opt/metrics
+      state: directory
+      mode: "0755"
+
+- name: Directory
+  ansible.builtin.file:
+      path: /opt/metrics/alertmanager
+      state: directory
+      mode: "0700"
+      owner: alertmanager
+      group: alertmanager
+
+
+# Download and install.
+
+- name: Stat archive
+  ansible.builtin.stat:
+      path: "/opt/metrics/alertmanager/\
+             alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+  register: alert_archive
+  # Download
+
+- name: Download
+  ansible.builtin.get_url:
+      url: "https://github.com/prometheus/alertmanager/releases/download/\
+            v{{ alertmanager_version }}/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+      dest: /opt/metrics/alertmanager
+      mode: "0644"
+  when: not alert_archive.stat.exists
+  register: alert_download
+  # Clean
+
+- name: Clean
+  ansible.builtin.file:
+      path: /opt/metrics/alertmanager/bin
+      state: absent
+  when: alert_download is changed  # noqa: no-handler
+
+- name: Stat bin
+  ansible.builtin.stat:
+      path: /opt/metrics/alertmanager/bin
+  register: alert_bin
+  # Unarchive
+  # Move
+  # Install
+
+- name: Unarchive
+  ansible.builtin.unarchive:
+      src: "/opt/metrics/alertmanager/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64.tar.gz"
+      dest: /opt/metrics/alertmanager
+      remote_src: true
+      owner: alertmanager
+      group: alertmanager
+  when: not alert_bin.stat.exists
+
+- name: Move
+  notify:
+      - restart alertmanager service
+  ansible.builtin.command:
+      cmd: "mv /opt/metrics/alertmanager/\
+            alertmanager-{{ alertmanager_version }}.linux-amd64 \
+            /opt/metrics/alertmanager/bin"
+  when: not alert_bin.stat.exists
+  changed_when: true
+
+- name: Config
+  notify:
+      - restart alertmanager service
+  ansible.builtin.template:
+      src: alertmanager.yml
+      dest: /opt/metrics/alertmanager/alertmanager.yml
+      mode: "0644"
+      owner: alertmanager
+      group: alertmanager
+
+
+# Service.
+
+- name: Service
+  notify:
+      - restart alertmanager service
+  ansible.builtin.template:
+      src: service
+      dest: /etc/systemd/system/alertmanager.service
+      mode: "0644"
+
+- name: Service status
+  ansible.builtin.systemd:
+      name: alertmanager.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,1 @@
+-A INPUT --match state --state RELATED,ESTABLISHED -j ACCEPT

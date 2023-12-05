@@ -1,0 +1,2 @@
+-A INPUT --protocol tcp --dport 80 -j ACCEPT
+-A INPUT --protocol tcp --dport 443 -j ACCEPT

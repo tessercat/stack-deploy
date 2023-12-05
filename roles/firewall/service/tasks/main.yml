@@ -1,0 +1,91 @@
+---
+
+# OS.
+
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - git
+          - python3-venv
+
+
+# Starlette app.
+
+- name: Directory
+  ansible.builtin.file:
+      path: /opt/firewall
+      state: directory
+      mode: "0755"
+
+- name: Repo directory
+  ansible.builtin.file:
+      path: /opt/firewall/service
+      state: directory
+      mode: "0700"
+
+- name: Repo
+  notify:
+      - restart firewall service
+  ansible.builtin.git:
+      repo: "{{ firewall_service_repo }}"
+      dest: /opt/firewall/service
+      version: "{{ firewall_service_version }}"
+      force: true
+  register: firewall_git
+  # Upgrade
+  # Requirements
+
+
+# Project venv.
+
+- name: Venv
+  notify:
+      - restart firewall service
+  ansible.builtin.command:
+      cmd: python3 -m venv venv
+  args:
+      chdir: /opt/firewall/service
+      creates: /opt/firewall/service/venv
+  register: firewall_venv
+  # Upgrade
+  # Requirements
+
+- name: Upgrade
+  ansible.builtin.command:
+      cmd: /opt/firewall/service/venv/bin/pip install --upgrade \
+        pip setuptools wheel pip-tools
+  when: firewall_git is changed or firewall_venv is changed
+  register: fw_upgrade
+  changed_when: '"Successfully installed" not in fw_upgrade.stdout'
+
+- name: Requirements
+  ansible.builtin.command:
+      cmd: /opt/firewall/service/venv/bin/pip-sync reqs/prod.txt
+  args:
+      chdir: /opt/firewall/service
+  when: firewall_git is changed or firewall_venv is changed
+  register: fw_sync
+  changed_when: '"Successfully installed" not in fw_sync.stdout'
+
+
+# Systemd services.
+
+- name: Firewall service file
+  notify:
+      - restart firewall service
+  ansible.builtin.template:
+      src: service
+      dest: /etc/systemd/system/firewall.service
+      mode: "0644"
+
+- name: Firewall service status
+  ansible.builtin.systemd:
+      name: firewall.service
+      enabled: true
+      daemon-reload: true
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

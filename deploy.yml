@@ -1,0 +1,33 @@
+---
+- name: Deploy stack
+  hosts: 127.0.0.1
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+
+      firewall_config_repo: https://github.com/tessercat/firewall-config.git
+      firewall_config_version: dev
+
+      firewall_service_repo: https://github.com/tessercat/firewall-service.git
+      firewall_service_version: dev
+      firewall_service_port: 8100
+
+      prometheus_version: 2.55.0
+      alertmanager_version: 0.27.0
+      node_exporter_version: 1.8.2
+
+      stack_web_repo: https://github.com/tessercat/stack-web.git
+      stack_web_version: dev
+
+  roles:
+      - {role: exim, tags: [exim]}
+      - {role: host, tags: [host]}
+      - {role: certbot, tags: [certbot]}
+      - {role: firewall/config, tags: [firewall_config, firewall]}
+      - {role: firewall/service, tags: [firewall_service, firewall]}
+      - {role: metrics/node_exporter, tags: [node_exporter, metrics]}
+      - {role: metrics/prometheus, tags: [prometheus, metrics]}
+      - {role: metrics/alertmanager, tags: [alertmanager, metrics]}
+      - {role: parked, tags: [parked]}
+      - {role: service, tags: [service]}

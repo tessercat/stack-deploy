@@ -1,0 +1,31 @@
+# Chains.
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# Implement default deny policy.
+-P INPUT DROP
+-P FORWARD DROP
+
+# Accept loopback traffic.
+-A INPUT -i lo -j ACCEPT
+
+# Accept all ICMP traffic.
+#-A INPUT -p icmp --icmp-type any -j ACCEPT
+
+# Accept only some ICMP traffic as per http://shouldiblockicmp.com/.
+-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+-A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+-A INPUT -p icmp --icmp-type fragmentation-needed -j ACCEPT
+-A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+
+# Drop fragments and TCP SYN-flood, XMAS and NULL packets.
+# https://www.cyberciti.biz/tips/linux-iptables-10-how-to-block-common-attack.html
+-A INPUT -f -j DROP
+-A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+-A INPUT -p tcp --tcp-flags ALL ALL -j DROP
+-A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+
+# And finally.
+COMMIT

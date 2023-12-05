@@ -1,0 +1,7 @@
+---
+- name: Restart service
+  listen:
+      - restart alertmanager service
+  ansible.builtin.systemd:
+      name: alertmanager.service
+      state: restarted

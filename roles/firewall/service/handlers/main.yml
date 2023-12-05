@@ -1,0 +1,7 @@
+---
+- name: Restart service
+  listen:
+      - restart firewall service
+  ansible.builtin.systemd:
+      name: firewall.service
+      state: restarted

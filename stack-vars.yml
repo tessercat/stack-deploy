@@ -1,0 +1,40 @@
+---
+# Stack role variables. Edit as required.
+
+# Run modules using the host's Python 3 interpreter.
+ansible_python_interpreter: "/usr/bin/python3"
+
+# Change this and smtp_* vars to send admin email to an external address.
+# The admin_email domain must be different from hostname.
+admin_email: "root@localhost"
+
+# Auth vars for a STARTTLS SMTP service. Optional, change only if present.
+smtp_server: ""
+smtp_username: ""
+smtp_password: ""
+
+# The host's DNS name. Required.
+hostname: ""
+
+# List other DNS names for the host. Optional.
+other_hostnames: []
+
+# List DNS names to park. Domains must be hostname or in other_hostnames.
+parked_domains: []
+
+# The host's tzdata database time zone. Optional, change only if present.
+timezone: ""
+
+# SSH port. Required.
+ssh_port: "22"
+
+# Limit SSH access to admin addresses only. Be careful.
+ssh_admin_only: false
+
+# Let's Encrypt account email address. Required.
+letsencrypt_admin_email: ""
+
+# List systemd services to monitor.
+monitored_services:
+  - netfilter-persistent.service
+  - firewall.service

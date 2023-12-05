@@ -1,0 +1,8 @@
+---
+
+- name: Restart certbot nginx service
+  listen:
+      - restart certbot nginx service
+  ansible.builtin.systemd:
+      name: nginx.service
+      state: restarted
